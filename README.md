@@ -33,8 +33,8 @@ The building blocks provide search algorithms, as well as, functionalities for m
    - Find the best sequences
    - Sequence manipulation
      - Batch Elimination
-     - Itertive Elimination
-     - Combined Eliminatino
+     - Iterative Elimination
+     - Combined Elimination
      - Improved Batch Elimination
      - Reduction
 
