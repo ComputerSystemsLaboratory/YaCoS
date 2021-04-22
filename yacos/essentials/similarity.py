@@ -40,6 +40,8 @@ class Similarity:
     __d2v_model_syntax_token_kind = None
     __d2v_model_syntax_token_kind_variable = None
 
+    __d2v_dir = 'yacos/doc2vec'
+
     @staticmethod
     def __populate_data(training_benchmarks,
                         training_directory,
@@ -139,57 +141,57 @@ class Similarity:
     @staticmethod
     def __load_doc2vec_model_syntax_seq():
         """Load a doc2vec model."""
-        MODEL = 'yacos/info/compy/data/d2v_syntax_seq.model'
+        MODEL = 'd2v_syntax_seq.model'
 
-        top_dir = os.environ.get('PYTHONPATH')
-        if not top_dir:
-            lg.error('PYTHONPATH does not exist.')
+        top_dir = os.path.join(os.environ.get('HOME'), '.local')
+        if not os.path.isdir(os.path.join(top_dir, 'yacos')):
+            lg.error('YaCoS data does not exist.')
             sys.sys.exit(1)
 
         Similarity.__d2v_model_syntax_seq = Doc2Vec.load(
-                    os.path.join(top_dir, MODEL)
+                    os.path.join(top_dir, Similarity.__d2v_dir, MODEL)
         )
 
     @staticmethod
     def __load_doc2vec_model_syntax_token_kind():
         """Load a doc2vec model."""
-        MODEL = 'yacos/info/compy/data/d2v_syntax_token_kind.model'
+        MODEL = 'd2v_syntax_token_kind.model'
 
-        top_dir = os.environ.get('PYTHONPATH')
-        if not top_dir:
-            lg.error('PYTHONPATH does not exist.')
+        top_dir = os.path.join(os.environ.get('HOME'), '.local')
+        if not os.path.isdir(os.path.join(top_dir, 'yacos')):
+            lg.error('YaCoS data does not exist.')
             sys.sys.exit(1)
 
         Similarity.__d2v_model_syntax_token_kind = Doc2Vec.load(
-                    os.path.join(top_dir, MODEL)
+                    os.path.join(top_dir, Similarity.__d2v_dir, MODEL)
         )
 
     @staticmethod
     def __load_doc2vec_model_syntax_token_kind_variable():
         """Load a doc2vec model."""
-        MODEL = 'yacos/info/compy/data/d2v_syntax_token_kind_variable.model'
+        MODEL = 'd2v_syntax_token_kind_variable.model'
 
-        top_dir = os.environ.get('PYTHONPATH')
-        if not top_dir:
-            lg.error('PYTHONPATH does not exist.')
+        top_dir = os.path.join(os.environ.get('HOME'), '.local')
+        if not os.path.isdir(os.path.join(top_dir, 'yacos')):
+            lg.error('YaCoS data does not exist.')
             sys.sys.exit(1)
 
-        Similarity.__d2v_model_syntax_token_kind_variable = Doc2Vec.load(
-                    os.path.join(top_dir, MODEL)
+        Similarity.__d2v_model_syntax_token_kind = Doc2Vec.load(
+                    os.path.join(top_dir, Similarity.__d2v_dir, MODEL)
         )
 
     @staticmethod
     def __load_doc2vec_model_llvm_seq():
         """Load a doc2vec model."""
-        MODEL = 'yacos/info/compy/data/d2v_llvm_seq.model'
+        MODEL = 'd2v_llvm_seq.model'
 
-        top_dir = os.environ.get('PYTHONPATH')
-        if not top_dir:
-            lg.error('PYTHONPATH does not exist.')
+        top_dir = os.path.join(os.environ.get('HOME'), '.local')
+        if not os.path.isdir(os.path.join(top_dir, 'yacos')):
+            lg.error('YaCoS data does not exist.')
             sys.sys.exit(1)
 
-        Similarity.__d2v_model_llvm_seq = Doc2Vec.load(
-                    os.path.join(top_dir, MODEL)
+        Similarity.__d2v_model_syntax_token_kind = Doc2Vec.load(
+                    os.path.join(top_dir, Similarity.__d2v_dir, MODEL)
         )
 
     @staticmethod

@@ -72,8 +72,8 @@ class Sequence(object):
     __d2v_model_syntax_token_kind = None
     __d2v_model_syntax_token_kind_variable = None
 
-    __w2v_dir = 'yacos/info/compy/data/word2vec'
-    __d2v_dir = 'yacos/info/compy/data/doc2vec'
+    __w2v_dir = 'yacos/word2vec'
+    __d2v_dir = 'yacos/doc2vec'
 
     def __init__(self, S, token_types):
         """Initialize a Sequence representation."""
@@ -87,9 +87,9 @@ class Sequence(object):
         else:
             MODEL = 'w2v_syntax_seq_cbow.model'
 
-        top_dir = os.environ.get('PYTHONPATH')
-        if not top_dir:
-            lg.error('PYTHONPATH does not exist.')
+        top_dir = os.path.join(os.environ.get('HOME'), '.local')
+        if not os.path.isdir(os.path.join(top_dir, 'yacos')):
+            lg.error('YaCoS data does not exist.')
             sys.sys.exit(1)
 
         Sequence.__w2v_model_syntax_seq = Word2Vec.load(
@@ -103,9 +103,9 @@ class Sequence(object):
         else:
             MODEL = 'w2v_syntax_token_kind_cbow.model'
 
-        top_dir = os.environ.get('PYTHONPATH')
-        if not top_dir:
-            lg.error('PYTHONPATH does not exist.')
+        top_dir = os.path.join(os.environ.get('HOME'), '.local')
+        if not os.path.isdir(os.path.join(top_dir, 'yacos')):
+            lg.error('YaCoS data does not exist.')
             sys.sys.exit(1)
 
         Sequence.__w2v_model_syntax_token_kind = Word2Vec.load(
@@ -120,9 +120,9 @@ class Sequence(object):
         else:
             MODEL = 'w2v_syntax_token_kind_variable_cbow.model'
 
-        top_dir = os.environ.get('PYTHONPATH')
-        if not top_dir:
-            lg.error('PYTHONPATH does not exist.')
+        top_dir = os.path.join(os.environ.get('HOME'), '.local')
+        if not os.path.isdir(os.path.join(top_dir, 'yacos')):
+            lg.error('YaCoS data does not exist.')
             sys.sys.exit(1)
 
         Sequence.__w2v_model_syntax_token_kind_variable = Word2Vec.load(
@@ -136,9 +136,9 @@ class Sequence(object):
         else:
             MODEL = 'w2v_llvm_seq_cbow.model'
 
-        top_dir = os.environ.get('PYTHONPATH')
-        if not top_dir:
-            lg.error('PYTHONPATH does not exist.')
+        top_dir = os.path.join(os.environ.get('HOME'), '.local')
+        if not os.path.isdir(os.path.join(top_dir, 'yacos')):
+            lg.error('YaCoS data does not exist.')
             sys.sys.exit(1)
 
         Sequence.__w2v_model_llvm_seq = Word2Vec.load(
@@ -150,9 +150,9 @@ class Sequence(object):
         """Load a doc2vec model."""
         MODEL = 'd2v_syntax_seq.model'
 
-        top_dir = os.environ.get('PYTHONPATH')
-        if not top_dir:
-            lg.error('PYTHONPATH does not exist.')
+        top_dir = os.path.join(os.environ.get('HOME'), '.local')
+        if not os.path.isdir(os.path.join(top_dir, 'yacos')):
+            lg.error('YaCoS data does not exist.')
             sys.sys.exit(1)
 
         Sequence.__d2v_model_syntax_seq = Doc2Vec.load(
@@ -164,9 +164,9 @@ class Sequence(object):
         """Load a doc2vec model."""
         MODEL = 'd2v_syntax_token_kind.model'
 
-        top_dir = os.environ.get('PYTHONPATH')
-        if not top_dir:
-            lg.error('PYTHONPATH does not exist.')
+        top_dir = os.path.join(os.environ.get('HOME'), '.local')
+        if not os.path.isdir(os.path.join(top_dir, 'yacos')):
+            lg.error('YaCoS data does not exist.')
             sys.sys.exit(1)
 
         Sequence.__d2v_model_syntax_token_kind = Doc2Vec.load(
@@ -178,9 +178,9 @@ class Sequence(object):
         """Load a doc2vec model."""
         MODEL = 'd2v_syntax_token_kind_variable.model'
 
-        top_dir = os.environ.get('PYTHONPATH')
-        if not top_dir:
-            lg.error('PYTHONPATH does not exist.')
+        top_dir = os.path.join(os.environ.get('HOME'), '.local')
+        if not os.path.isdir(os.path.join(top_dir, 'yacos')):
+            lg.error('YaCoS data does not exist.')
             sys.sys.exit(1)
 
         Sequence.__d2v_model_syntax_token_kind_variable = Doc2Vec.load(
@@ -192,9 +192,9 @@ class Sequence(object):
         """Load a doc2vec model."""
         MODEL = 'd2v_llvm_seq.model'
 
-        top_dir = os.environ.get('PYTHONPATH')
-        if not top_dir:
-            lg.error('PYTHONPATH does not exist.')
+        top_dir = os.path.join(os.environ.get('HOME'), '.local')
+        if not os.path.isdir(os.path.join(top_dir, 'yacos')):
+            lg.error('YaCoS data does not exist.')
             sys.sys.exit(1)
 
         Sequence.__d2v_model_llvm_seq = Doc2Vec.load(
@@ -372,8 +372,8 @@ class Graph(object):
     __inst2vec_dictionary = None
     __inst2vec_embeddings = None
 
-    __w2v_dir = 'yacos/info/compy/data/word2vec'
-    __i2v_dir = 'yacos/info/ncc/data'
+    __w2v_dir = 'yacos/word2vec'
+    __i2v_dir = 'yacos/inst2vec'
 
     def __init__(self, graph, node_types, edge_types):
         """Initialize a Graph representation."""
@@ -386,9 +386,9 @@ class Graph(object):
         DICTIONARY = 'inst2vec_augmented_dictionary.pickle'
         EMBEDDINGS = 'inst2vec_augmented_embeddings.pickle'
 
-        top_dir = os.environ.get('PYTHONPATH')
-        if not top_dir:
-            lg.error('PYTHONPATH does not exist.')
+        top_dir = os.path.join(os.environ.get('HOME'), '.local')
+        if not os.path.isdir(os.path.join(top_dir, 'yacos')):
+            lg.error('YaCoS data does not exist.')
             sys.sys.exit(1)
 
         filename = os.path.join(top_dir, self.__i2v_dir, DICTIONARY)
@@ -404,9 +404,9 @@ class Graph(object):
         else:
             MODEL = 'w2v_ast_model.model'
 
-        top_dir = os.environ.get('PYTHONPATH')
-        if not top_dir:
-            lg.error('PYTHONPATH does not exist.')
+        top_dir = os.path.join(os.environ.get('HOME'), '.local')
+        if not os.path.isdir(os.path.join(top_dir, 'yacos')):
+            lg.error('YaCoS data does not exist.')
             sys.sys.exit(1)
 
         Graph.__w2v_model_ast = Word2Vec.load(os.path.join(top_dir,
@@ -420,9 +420,9 @@ class Graph(object):
         else:
             MODEL = 'w2v_ir_graph_model.model'
 
-        top_dir = os.environ.get('PYTHONPATH')
-        if not top_dir:
-            lg.error('PYTHONPATH does not exist.')
+        top_dir = os.path.join(os.environ.get('HOME'), '.local')
+        if not os.path.isdir(os.path.join(top_dir, 'yacos')):
+            lg.error('YaCoS data does not exist.')
             sys.sys.exit(1)
 
         Graph.__w2v_model_ir_graph = Word2Vec.load(

@@ -33,7 +33,7 @@ target_link_libraries(llvm_extractor_tests
         gtest_main
         )
 target_compile_options(llvm_extractor_tests PRIVATE
-        -fno-rtti -fPIC
+        -fno-rtti -fPIC -std=c++17
         )
 
 add_subdirectory(wl_static_profiler)

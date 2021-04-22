@@ -45,8 +45,8 @@ class Inst2Vec:
     __data_directory_ir = None
     __data_directory_seq = None
 
-    __vocabulary_dir = 'yacos/info/ncc/data'
-    __embeddings_file = 'yacos/info/ncc/data/inst2vec_augmented_embeddings.pickle'
+    __data_dir = 'yacos/inst2vec'
+    __embeddings_file = 'inst2vec_augmented_embeddings.pickle'
 
     @staticmethod
     def prepare_benchmarks(benchmarks_filename,
@@ -164,18 +164,20 @@ class Inst2Vec:
         """
         # Verify what data to use
         if not embeddings_file:
-            top_dir = os.environ.get('PYTHONPATH')
-            if not top_dir:
-                lg.error('PYTHONPATH does not exist.')
-                sys.exit(1)
-            embeddings_file = os.path.join(top_dir, Inst2Vec.__embeddings_file)
+            top_dir = os.path.join(os.environ.get('HOME'), '.local')
+            if not os.path.isdir(os.path.join(top_dir, 'yacos')):
+                lg.error('YaCoS data does not exist.')
+                sys.sys.exit(1)
+            embeddings_file = os.path.join(top_dir,
+                                           Inst2Vec.__data_dir,
+                                           Inst2Vec.__embeddings_file)
 
         if not vocabulary_dir:
-            top_dir = os.environ.get('PYTHONPATH')
-            if not top_dir:
-                lg.error('PYTHONPATH does not exist.')
-                sys.exit(1)
-            vocabulary_dir = os.path.join(top_dir, Inst2Vec.__vocabulary_dir)
+            top_dir = os.path.join(os.environ.get('HOME'), '.local')
+            if not os.path.isdir(os.path.join(top_dir, 'yacos')):
+                lg.error('YaCoS data does not exist.')
+                sys.sys.exit(1)
+            vocabulary_dir = os.path.join(top_dir, Inst2Vec.__data_dir)
 
         # Prepare the directories
         Inst2Vec.prepare_benchmarks(benchmarks_filename,
@@ -234,18 +236,20 @@ class Inst2Vec:
         """
         # Verify what data to use
         if not embeddings_file:
-            top_dir = os.environ.get('PYTHONPATH')
-            if not top_dir:
-                lg.error('PYTHONPATH does not exist.')
-                sys.exit(1)
-            embeddings_file = os.path.join(top_dir, Inst2Vec.__embeddings_file)
+            top_dir = os.path.join(os.environ.get('HOME'), '.local')
+            if not os.path.isdir(os.path.join(top_dir, 'yacos')):
+                lg.error('YaCoS data does not exist.')
+                sys.sys.exit(1)
+            embeddings_file = os.path.join(top_dir,
+                                           Inst2Vec.__data_dir,
+                                           Inst2Vec.__embeddings_file)
 
         if not vocabulary_dir:
-            top_dir = os.environ.get('PYTHONPATH')
-            if not top_dir:
-                lg.error('PYTHONPATH does not exist.')
-                sys.exit(1)
-            vocabulary_dir = os.path.join(top_dir, Inst2Vec.__vocabulary_dir)
+            top_dir = os.path.join(os.environ.get('HOME'), '.local')
+            if not os.path.isdir(os.path.join(top_dir, 'yacos')):
+                lg.error('YaCoS data does not exist.')
+                sys.sys.exit(1)
+            vocabulary_dir = os.path.join(top_dir, Inst2Vec.__data_dir)
 
         Inst2Vec.__data_directory_seq = llvm_ir_to_trainable(
             Inst2Vec.__data_directory_ir,
@@ -280,11 +284,13 @@ class Inst2Vec:
     @staticmethod
     def get_unknown_embeddings():
         """Get unknown embeddings."""
-        top_dir = os.environ.get('PYTHONPATH')
-        if not top_dir:
-            lg.error('PYTHONPATH does not exist.')
-            sys.exit(1)
-        embeddings_file = os.path.join(top_dir, Inst2Vec.__embeddings_file)
+        top_dir = os.path.join(os.environ.get('HOME'), '.local')
+        if not os.path.isdir(os.path.join(top_dir, 'yacos')):
+            lg.error('YaCoS data does not exist.')
+            sys.sys.exit(1)
+        embeddings_file = os.path.join(top_dir,
+                                       Inst2Vec.__data_dir,
+                                       Inst2Vec.__embeddings_file)
 
         # Load the embeddings
         embeddings = IO.load_pickle_or_fail(embeddings_file)

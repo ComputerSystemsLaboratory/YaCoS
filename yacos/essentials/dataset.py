@@ -56,53 +56,49 @@ class Dataset:
         return cls.__training_data
 
     @staticmethod
-    def download_benchmark(benchmark):
+    def download_benchmark(benchmark,
+                           outdir):
         """Download benchmarks.
 
         Parameter
         ---------
         training_data : str
+
+        outdir : str
+            Output directory
         """
         if benchmark not in Dataset.__benchmarks:
             lg.error('Benchmark {} does not exist.'.format(benchmark))
             sys.sys.exit(1)
 
-        top_dir = os.environ.get('PYTHONPATH')
-        if not top_dir:
-            lg.error('PYTHONPATH does not exist.')
-            sys.exit(1)
+        os.makedirs(outdir, exist_ok=True)
 
-        directory = os.path.join(top_dir, 'dataset/benchmarks')
-        os.makedirs(directory, exist_ok=True)
-
-        if not os.path.isdir(os.path.join(directory, benchmark)):
+        if not os.path.isdir(os.path.join(outdir, benchmark)):
             archive_file = '{}.tar.xz'.format(benchmark)
             urllib.request.urlretrieve(Dataset.__url, archive_file)
             with tarfile.open(archive_file, 'r:xz') as f:
-                f.extractall(directory)
+                f.extractall(outdir)
 
     @staticmethod
-    def download_training_data(training_data):
+    def download_training_data(training_data,
+                               outdir):
         """Download training data.
 
         Parameter
         ---------
         training_data : str
+
+        outdir : str
+            Output directory
         """
         if training_data not in Dataset.__training_data:
             lg.error('Training data {} does not exist.'.format(training_data))
             sys.sys.exit(1)
 
-        top_dir = os.environ.get('PYTHONPATH')
-        if not top_dir:
-            lg.error('PYTHONPATH does not exist.')
-            sys.exit(1)
+        os.makedirs(outdir, exist_ok=True)
 
-        directory = os.path.join(top_dir, 'dataset/training_data')
-        os.makedirs(directory, exist_ok=True)
-
-        if not os.path.isdir(os.path.join(directory, training_data)):
+        if not os.path.isdir(os.path.join(outdir, training_data)):
             archive_file = '{}.tar.xz'.format(training_data)
             urllib.request.urlretrieve(Dataset.__url, archive_file)
             with tarfile.open(archive_file, 'r:xz') as f:
-                f.extractall(directory)
+                f.extractall(outdir)
