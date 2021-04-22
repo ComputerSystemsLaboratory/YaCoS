@@ -18,7 +18,7 @@ limitations under the License.
 #include "IR2Vec.h"
 
 #include <algorithm>
-#include <string>
+#include <filesystem>
 #include <iostream>
 #include <string>
 
@@ -31,13 +31,14 @@ namespace ir2vec {
 bool ExtractorPass::runOnModule(::llvm::Module &module) {
   ExtractionInfoPtr info(new ExtractionInfo);
 
+  const char* env_p = std::getenv("HOME");
   std::string vocabulary;
-  if(const char* env_p = std::getenv("PYTHONPATH")) {
-    vocabulary = env_p;
-    vocabulary = vocabulary + "/yacos/info/compy/data/ir2vec/seedEmbeddingVocab-300-llvm10.txt";
-  }
-  else
-    std::string vocabulary = "./seedEmbeddingVocab-300-llvm10.txt";
+  vocabulary = env_p;
+  vocabulary = vocabulary + ".local/yacos/ir2vec/seedEmbeddingVocab-300-llvm10.txt";
+
+  std::filesystem::path p(vocabulary);
+  if (!std::filesystem::exists(p))
+      throw std::runtime_error("YaCoS data does not exist.");
 
   auto ir2vec = IR2Vec::Embeddings(module, IR2Vec::IR2VecMode::FlowAware,
                                    vocabulary);

@@ -28,8 +28,12 @@ install_requires = [
     "seaborn",
     "networkx",
     "gensim",
+    "wget",
+    "python-Levenshtein",
     "nltk",
-    "angr"
+    "angr",
+    "spektral",
+    "stellargraph"
 ]
 tests_require = ["pytest", "pytest-cov"]
 

@@ -21,12 +21,10 @@ function install_system_packages {
 }
 
 function install_yacos_data {
-  wget www.csl.uem.br/repository/data/compy_data.tar.xz
-  tar xfJ compy_data.tar.xz -C yacos/info/compy
-  rm -f compy_data.tar.xz
-  wget www.csl.uem.br/repository/data/ncc_data.tar.xz
-  tar xfJ ncc_data.tar.xz -C yacos/info/ncc
-  rm -f ncc_data.tar.xz
+  mkdir $HOME/.local/yacos
+  wget www.csl.uem.br/repository/yacos_data.tar.xz
+  tar xfJ compy_data.tar.xz -C $HOME/.local/yacos
+  rm -f yacos_data.tar.xz
 }
 
 if [[ $(lsb_release -rs) == "16.04" ]] || [[ $(lsb_release -rs) == "18.04" ]]; then
