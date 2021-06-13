@@ -375,11 +375,17 @@ class Graph(object):
 
     __w2v_model_ast = None
     __w2v_model_ir_graph = None
+    __w2v_model_asm_graph = None
     __inst2vec_dictionary = None
     __inst2vec_embeddings = None
 
+    __boo_ir = None
+    __boo_asm = None
+
     __w2v_dir = 'yacos/data/word2vec'
     __i2v_dir = 'yacos/data/inst2vec'
+    __ir2v_dir = 'yacos/data/ir2vec'
+    __boo_dir = 'yacos/data/bag_of_words'
 
     def __init__(self, graph, node_types, edge_types):
         """Initialize a Graph representation."""
@@ -432,13 +438,93 @@ class Graph(object):
             sys.exit(1)
 
         Graph.__w2v_model_ir_graph = Word2Vec.load(
-                        os.path.join(top_dir, self.__w2v_dir, MODEL)
+            os.path.join(top_dir, self.__w2v_dir, MODEL)
         )
+
+    def __load_word2vec_model_asm_graph(self, skip_gram=False):
+        """Load a word2vec model."""
+        if skip_gram:
+            MODEL = 'w2v_asm_graph_skip_gram.model'
+        else:
+            MODEL = 'w2v_asm_graph_cbow.model'
+
+        top_dir = os.path.join(os.environ.get('HOME'), '.local')
+        if not os.path.isdir(os.path.join(top_dir, 'yacos')):
+            lg.error('YaCoS data does not exist.')
+            sys.exit(1)
+
+        Graph.__w2v_model_asm_graph = Word2Vec.load(
+            os.path.join(top_dir, self.__w2v_dir, MODEL)
+        )
+
+    def __load_boo_ir(self):
+        """Load bag of words (LLVM  IR) dictionary."""
+        DICTIONARY = 'ir_bag_of_words.pickle'
+
+        top_dir = os.path.join(os.environ.get('HOME'), '.local')
+        if not os.path.isdir(os.path.join(top_dir, 'yacos')):
+            lg.error('YaCoS data does not exist.')
+            sys.exit(1)
+
+        filename = os.path.join(top_dir, self.__boo_dir, DICTIONARY)
+        Graph.__boo_ir = IO.load_pickle_or_fail(filename)
+
+    def __load_boo_asm(self):
+        """Load bag of words (Assembly) dictionary."""
+        DICTIONARY = 'asm_bag_of_words.pickle'
+
+        top_dir = os.path.join(os.environ.get('HOME'), '.local')
+        if not os.path.isdir(os.path.join(top_dir, 'yacos')):
+            lg.error('YaCoS data does not exist.')
+            sys.exit(1)
+
+        filename = os.path.join(top_dir, self.__boo_dir, DICTIONARY)
+        Graph.__boo_asm = IO.load_pickle_or_fail(filename)
 
     def __get_node_attr_dict(self):
         """Return the node attributes."""
         return collections.OrderedDict(self.G.nodes(data="attr",
                                                     default="N/A"))
+
+    def __opcodes2vec(self, bag_of_words, llvm, compact):
+        """Tranform dictionary into a vector."""
+        if llvm and not Graph.__boo_ir:
+            self.__load_boo_ir()
+            boo = Graph.__boo_ir
+        elif not Graph.__boo_asm:
+            self.__load_boo_asm()
+            boo = Graph.__boo_asm
+
+        """
+        classes:
+          terminator: 0
+          unary: 1
+          binary: 2
+          ...
+        instructions:
+          ret:
+            class: 0
+            pos: 0
+          ...
+          fneg:
+            class: 1
+            pos: 11
+          ...
+        """
+
+        if compact:
+            vector = [0 for _ in range(len(boo['classes']))]
+        else:
+            vector = [0 for _ in range(len(boo['instructions']))]
+
+        if compact:
+            for opcode in bag_of_words:
+                vector[boo['instructions'][opcode]['class']] += 1
+        else:
+            for opcode in bag_of_words:
+                vector[boo['instructions'][opcode]['pos']] += 1
+
+        return vector
 
     def get_node_str_list(self):
         """Return the node attributes."""
@@ -467,19 +553,6 @@ class Graph(object):
             if "value" in data:
                 nodes.append(
                     Graph.__inst2vec_embeddings[augmented['!IMMEDIATE']])
-            elif "inst" in data:
-                if type(data["inst"]) is tuple:
-                    inst = "\n".join(data["inst"])
-                else:
-                    inst = data["inst"]
-                preprocessed, _ = i2v_pre.preprocess([[inst]])
-                preprocessed = i2v_pre.PreprocessStatement(preprocessed[0][0])
-                if preprocessed in Graph.__inst2vec_dictionary:
-                    embeddings = Graph.__inst2vec_dictionary[preprocessed]
-                    embeddings = Graph.__inst2vec_embeddings[embeddings]
-                else:
-                    embeddings = Graph.__inst2vec_embeddings[augmented['!UNK']]
-                nodes.append(embeddings)
             elif "insts" in data:
                 emb = []
                 for inst in data['insts']:
@@ -516,6 +589,17 @@ class Graph(object):
                         Graph.__inst2vec_embeddings[augmented['!IDENTIFIER']])
         return np.array(nodes)
 
+    def get_nodes_ir2vec_embeddings(self):
+        """Return the nodes embeddings (ir2vec)."""
+        pass
+
+    def get_nodes_bag_of_words_embeddings(self, llvm=True, compact=True):
+        """Return the nodes embeddings (bag of words)."""
+        nodes = []
+        for (n, data) in self.G.nodes(data=True):
+            nodes.append(Graph.__opcodes2vec(data['opcodes'], llvm, compact))
+        return np.array(nodes)
+
     def get_nodes_word2vec_ast_embeddings(self, skip_gram=False):
         """Return the nodes embeddings (word2vec)."""
         if not Graph.__w2v_model_ast:
@@ -549,6 +633,23 @@ class Graph(object):
             label = data["attr"].replace(' ', '')
             if label.lower() in Graph.__w2v_model_ir_graph.wv.vocab:
                 nodes.append(Graph.__w2v_model_ir_graph.wv[label.lower()])
+            else:
+                nodes.append(unknown)
+
+        return np.array(nodes)
+
+    def get_nodes_word2vec_asm_graph_embeddings(self, skip_gram=False):
+        """Return the nodes embeddings (word2vec)."""
+        if not Graph.__w2v_model_asm_graph:
+            self.__load_word2vec_model_asm_graph(skip_gram)
+
+        unknown = Graph.__w2v_model_asm_graph.wv['unknown']
+
+        nodes = []
+        for (n, data) in self.G.nodes(data=True):
+            label = data["attr"].replace(' ', '')
+            if label.lower() in Graph.__w2v_model_asm_graph.wv.vocab:
+                nodes.append(Graph.__w2v_model_asm_graph.wv[label.lower()])
             else:
                 nodes.append(unknown)
 
@@ -675,6 +776,10 @@ class Graph(object):
 
         return edges
 
+    def get_edge_list_ir2vec_embeddings(self):
+        """Return the edges and ir2vec embeddings."""
+        pass
+
     def get_edges_embeddings(self):
         """Return the edges embeedings."""
         emb = {
@@ -721,6 +826,10 @@ class Graph(object):
 
         return np.array(edges)
 
+    def get_edges_ir2vec_embeddings(self):
+        """Return the edges ir2vec embeddings."""
+        pass
+
     def get_adjacency_matrix(self):
         """Return the adjacency matrix."""
         nodes_keys = list(self.__get_node_attr_dict().keys())
@@ -764,7 +873,7 @@ class Graph(object):
                 else:
                     G.nodes[n]["label"] = label
 
-            if "inst" in data or "insts" in data:
+            if "insts" in data:
                 G.nodes[n]["shape"] = "rectangle"
                 G.nodes[n]["fillcolor"] = "cyan"
 

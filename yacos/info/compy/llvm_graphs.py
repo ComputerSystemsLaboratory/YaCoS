@@ -92,11 +92,14 @@ class LLVMCFGVisitor(Visitor):
             if not self.root:
                 self.G.add_node(v,
                                 attr=(v.opcode),
-                                inst=(v.instStr),
+                                opcodes=[(v.opcode)],
+                                insts=[(v.instStr)],
                                 root="root")
                 self.root = True
             else:
-                self.G.add_node(v, attr=(v.opcode), inst=(v.instStr))
+                self.G.add_node(v, attr=(v.opcode),
+                                opcodes=[(v.opcode)],
+                                insts=[(v.instStr)])
 
 
 class LLVMCFGCompactVisitor(Visitor):
@@ -114,12 +117,18 @@ class LLVMCFGCompactVisitor(Visitor):
         """Visit method."""
         if isinstance(v, llvm.graph.BasicBlockInfo):
             insts = [instr.instStr for instr in v.instructions]
+            opcodes = [instr.opcode for instr in v.instructions]
 
             if not self.root:
-                self.G.add_node(v, attr=(v.fullName), insts=insts, root="root")
+                self.G.add_node(v, attr=(v.fullName),
+                                opcodes=opcodes,
+                                insts=insts,
+                                root="root")
                 self.root = True
             else:
-                self.G.add_node(v, attr=(v.fullName), insts=insts)
+                self.G.add_node(v, attr=(v.fullName),
+                                opcodes=opcodes,
+                                insts=insts)
 
             # CFG edges: Inter-BB
             for succ in v.successors:
@@ -171,7 +180,9 @@ class LLVMCFGCallVisitor(Visitor):
 
         if isinstance(v, llvm.graph.InstructionInfo):
             # Instruction nodes.
-            self.G.add_node(v, attr=(v.opcode), inst=(v.instStr))
+            self.G.add_node(v, attr=(v.opcode),
+                            opcodes=[(v.opcode)],
+                            insts=[(v.instStr)])
 
             # Call edges.
             if v.opcode == "ret":
@@ -232,7 +243,9 @@ class LLVMCFGCallNoRootVisitor(Visitor):
 
         if isinstance(v, llvm.graph.InstructionInfo):
             # Instruction nodes.
-            self.G.add_node(v, attr=(v.opcode), inst=(v.instStr))
+            self.G.add_node(v, attr=(v.opcode),
+                            opcodes=[(v.opcode)],
+                            insts=[(v.instStr)])
 
             # Call edges.
             if v.opcode == "call":
@@ -284,8 +297,11 @@ class LLVMCFGCallCompactVisitor(Visitor):
 
         if isinstance(v, llvm.graph.BasicBlockInfo):
             insts = [instr.instStr for instr in v.instructions]
+            opcodes = [instr.opcode for instr in v.instructions]
 
-            self.G.add_node(v, attr=(v.fullName), insts=insts)
+            self.G.add_node(v, attr=(v.fullName),
+                            opcodes=opcodes,
+                            insts=insts)
 
             # CFG edges: Inter-BB
             for succ in v.successors:
@@ -355,8 +371,11 @@ class LLVMCFGCallCompactOneEdgeVisitor(Visitor):
 
         if isinstance(v, llvm.graph.BasicBlockInfo):
             insts = [instr.instStr for instr in v.instructions]
+            opcodes = [instr.opcode for instr in v.instructions]
 
-            self.G.add_node(v, attr=(v.fullName), insts=insts)
+            self.G.add_node(v, attr=(v.fullName),
+                            opcodes=opcodes,
+                            insts=insts)
 
             # CFG edges: Inter-BB
             for succ in v.successors:
@@ -428,8 +447,11 @@ class LLVMCFGCallCompactNoRootVisitor(Visitor):
 
         if isinstance(v, llvm.graph.BasicBlockInfo):
             insts = [instr.instStr for instr in v.instructions]
+            opcodes = [instr.opcode for instr in v.instructions]
 
-            self.G.add_node(v, attr=(v.fullName), insts=insts)
+            self.G.add_node(v, attr=(v.fullName),
+                            opcodes=opcodes,
+                            insts=insts)
 
             # CFG edges: Inter-BB
             for succ in v.successors:
@@ -483,8 +505,11 @@ class LLVMCFGCallCompactOneEdgeNoRootVisitor(Visitor):
 
         if isinstance(v, llvm.graph.BasicBlockInfo):
             insts = [instr.instStr for instr in v.instructions]
+            opcodes = [instr.opcode for instr in v.instructions]
 
-            self.G.add_node(v, attr=(v.fullName), insts=insts)
+            self.G.add_node(v, attr=(v.fullName),
+                            opcodes=opcodes,
+                            insts=insts)
 
             # CFG edges: Inter-BB
             for succ in v.successors:
@@ -568,11 +593,13 @@ class LLVMCDFGVisitor(Visitor):
             if not self.root:
                 self.G.add_node(v,
                                 attr=(v.opcode),
-                                inst=(v.instStr),
+                                insts=[(v.instStr)],
                                 root="root")
                 self.root = True
             else:
-                self.G.add_node(v, attr=(v.opcode), inst=(v.instStr))
+                self.G.add_node(v, attr=(v.opcode),
+                                opcodes=[(v.opcode)],
+                                insts=[(v.instStr)])
 
             # Operands.
             for operand in v.operands:
@@ -611,12 +638,18 @@ class LLVMCDFGCompactVisitor(Visitor):
 
         if isinstance(v, llvm.graph.BasicBlockInfo):
             insts = [instr.instStr for instr in v.instructions]
+            opcodes = [instr.opcode for instr in v.instructions]
 
             if not self.root:
-                self.G.add_node(v, attr=(v.fullName), insts=insts, root="root")
+                self.G.add_node(v, attr=(v.fullName),
+                                opcodes=opcodes,
+                                insts=insts,
+                                root="root")
                 self.root = True
             else:
-                self.G.add_node(v, attr=(v.fullName), insts=insts)
+                self.G.add_node(v, attr=(v.fullName),
+                                opcode=opcodes,
+                                insts=insts)
 
             # CFG edges: Inter-BB
             for succ in v.successors:
@@ -670,12 +703,18 @@ class LLVMCDFGCompactOneEdgeVisitor(Visitor):
 
         if isinstance(v, llvm.graph.BasicBlockInfo):
             insts = [instr.instStr for instr in v.instructions]
+            opcodes = [instr.opcode for instr in v.instructions]
 
             if not self.root:
-                self.G.add_node(v, attr=(v.fullName), insts=insts, root="root")
+                self.G.add_node(v, attr=(v.fullName),
+                                opcodes=opcodes,
+                                insts=insts,
+                                root="root")
                 self.root = True
             else:
-                self.G.add_node(v, attr=(v.fullName), insts=insts)
+                self.G.add_node(v, attr=(v.fullName),
+                                opcodes=opcodes,
+                                insts=insts)
 
             # CFG edges: Inter-BB
             for succ in v.successors:
@@ -749,7 +788,9 @@ class LLVMCDFGCallVisitor(Visitor):
 
         if isinstance(v, llvm.graph.InstructionInfo):
             # Instruction nodes.
-            self.G.add_node(v, attr=(v.opcode), inst=(v.instStr))
+            self.G.add_node(v, attr=(v.opcode),
+                            opcodes=[(v.opcode)],
+                            insts=[(v.instStr)])
 
             # Call edges.
             if v.opcode == "ret":
@@ -824,7 +865,9 @@ class LLVMCDFGCallNoRootVisitor(Visitor):
 
         if isinstance(v, llvm.graph.InstructionInfo):
             # Instruction nodes.
-            self.G.add_node(v, attr=(v.opcode), inst=(v.instStr))
+            self.G.add_node(v, attr=(v.opcode),
+                            opcodes=[(v.opcode)],
+                            insts=[(v.instStr)])
 
             if v.opcode == "call":
                 called_function = (
@@ -891,8 +934,11 @@ class LLVMCDFGCallCompactVisitor(Visitor):
 
         if isinstance(v, llvm.graph.BasicBlockInfo):
             insts = [instr.instStr for instr in v.instructions]
+            opcodes = [instr.opcode for instr in v.instructions]
 
-            self.G.add_node(v, attr=(v.fullName), insts=insts)
+            self.G.add_node(v, attr=(v.fullName),
+                            opcodes=opcodes,
+                            insts=insts)
 
             # CFG edges: Inter-BB
             for succ in v.successors:
@@ -985,8 +1031,11 @@ class LLVMCDFGCallCompactOneEdgeVisitor(Visitor):
 
         if isinstance(v, llvm.graph.BasicBlockInfo):
             insts = [instr.instStr for instr in v.instructions]
+            opcodes = [instr.opcode for instr in v.instructions]
 
-            self.G.add_node(v, attr=(v.fullName), insts=insts)
+            self.G.add_node(v, attr=(v.fullName),
+                            opcodes=opcodes,
+                            insts=insts)
 
             # CFG edges: Inter-BB
             for succ in v.successors:
@@ -1090,8 +1139,11 @@ class LLVMCDFGCallCompactNoRootVisitor(Visitor):
 
         if isinstance(v, llvm.graph.BasicBlockInfo):
             insts = [instr.instStr for instr in v.instructions]
+            opcodes = [instr.opcode for instr in v.instructions]
 
-            self.G.add_node(v, attr=(v.fullName), insts=insts)
+            self.G.add_node(v, attr=(v.fullName),
+                            opcodes=opcodes,
+                            insts=insts)
 
             # CFG edges: Inter-BB
             for succ in v.successors:
@@ -1171,8 +1223,11 @@ class LLVMCDFGCallCompactOneEdgeNoRootVisitor(Visitor):
 
         if isinstance(v, llvm.graph.BasicBlockInfo):
             insts = [instr.instStr for instr in v.instructions]
+            opcodes = [instr.opcode for instr in v.instructions]
 
-            self.G.add_node(v, attr=(v.fullName), insts=insts)
+            self.G.add_node(v, attr=(v.fullName),
+                            opcodes=opcodes,
+                            insts=insts)
 
             # CFG edges: Inter-BB
             for succ in v.successors:
@@ -1293,7 +1348,9 @@ class LLVMCDFGPlusVisitor(Visitor):
 
         if isinstance(v, llvm.graph.InstructionInfo):
             # Instruction nodes.
-            self.G.add_node(v, attr=(v.opcode), inst=(v.instStr))
+            self.G.add_node(v, attr=(v.opcode),
+                            opcodes=[(v.opcode)],
+                            insts=[(v.instStr)])
 
             # Call edges.
             if v.opcode == "ret":
@@ -1375,7 +1432,9 @@ class LLVMCDFGPlusNoRootVisitor(Visitor):
 
         if isinstance(v, llvm.graph.InstructionInfo):
             # Instruction nodes.
-            self.G.add_node(v, attr=(v.opcode), inst=(v.instStr))
+            self.G.add_node(v, attr=(v.opcode),
+                            opcodes=[(v.opcode)],
+                            insts=[(v.instStr)])
 
             if v.opcode == "call":
                 called_function = (
@@ -1443,7 +1502,9 @@ class LLVMProGraMLVisitor(Visitor):
 
         if isinstance(v, llvm.graph.InstructionInfo):
             # Instruction nodes.
-            self.G.add_node(v, attr=(v.opcode), inst=(v.instStr))
+            self.G.add_node(v, attr=(v.opcode),
+                            opcodes=[(v.opcode)],
+                            insts=[(v.instStr)])
 
             # Call edges.
             if v.opcode == "ret":
@@ -1520,7 +1581,9 @@ class LLVMProGraMLNoRootVisitor(Visitor):
 
         if isinstance(v, llvm.graph.InstructionInfo):
             # Instruction nodes.
-            self.G.add_node(v, attr=(v.opcode), inst=(v.instStr))
+            self.G.add_node(v, attr=(v.opcode),
+                            opcodes=[(v.opcode)],
+                            insts=[(v.instStr)])
 
             if v.opcode == "call":
                 called_function = (
