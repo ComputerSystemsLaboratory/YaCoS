@@ -15,6 +15,7 @@ limitations under the License.
 """
 
 from . import info
+from . import model
 from . import essential
 from . import algorithm
 from . import data_processing
