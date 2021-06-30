@@ -68,7 +68,7 @@ class Dataset:
         """
         if benchmark not in Dataset.__benchmark:
             lg.error('Benchmark {} does not exist.'.format(benchmark))
-            sys.sys.exit(1)
+            sys.exit(1)
 
         os.makedirs(outdir, exist_ok=True)
 
@@ -92,7 +92,7 @@ class Dataset:
         """
         if training_data not in Dataset.__training_data:
             lg.error('Training data {} does not exist.'.format(training_data))
-            sys.sys.exit(1)
+            sys.exit(1)
 
         os.makedirs(outdir, exist_ok=True)
 

@@ -146,7 +146,7 @@ class Similarity:
         top_dir = os.path.join(os.environ.get('HOME'), '.local')
         if not os.path.isdir(os.path.join(top_dir, 'yacos')):
             lg.error('YaCoS data does not exist.')
-            sys.sys.exit(1)
+            sys.exit(1)
 
         Similarity.__d2v_model_syntax_seq = Doc2Vec.load(
                     os.path.join(top_dir, Similarity.__d2v_dir, MODEL)
@@ -160,7 +160,7 @@ class Similarity:
         top_dir = os.path.join(os.environ.get('HOME'), '.local')
         if not os.path.isdir(os.path.join(top_dir, 'yacos')):
             lg.error('YaCoS data does not exist.')
-            sys.sys.exit(1)
+            sys.exit(1)
 
         Similarity.__d2v_model_syntax_token_kind = Doc2Vec.load(
                     os.path.join(top_dir, Similarity.__d2v_dir, MODEL)
@@ -174,7 +174,7 @@ class Similarity:
         top_dir = os.path.join(os.environ.get('HOME'), '.local')
         if not os.path.isdir(os.path.join(top_dir, 'yacos')):
             lg.error('YaCoS data does not exist.')
-            sys.sys.exit(1)
+            sys.exit(1)
 
         Similarity.__d2v_model_syntax_token_kind = Doc2Vec.load(
                     os.path.join(top_dir, Similarity.__d2v_dir, MODEL)
@@ -188,7 +188,7 @@ class Similarity:
         top_dir = os.path.join(os.environ.get('HOME'), '.local')
         if not os.path.isdir(os.path.join(top_dir, 'yacos')):
             lg.error('YaCoS data does not exist.')
-            sys.sys.exit(1)
+            sys.exit(1)
 
         Similarity.__d2v_model_syntax_token_kind = Doc2Vec.load(
                     os.path.join(top_dir, Similarity.__d2v_dir, MODEL)

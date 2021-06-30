@@ -167,7 +167,7 @@ class Inst2Vec:
             top_dir = os.path.join(os.environ.get('HOME'), '.local')
             if not os.path.isdir(os.path.join(top_dir, 'yacos')):
                 lg.error('YaCoS data does not exist.')
-                sys.sys.exit(1)
+                sys.exit(1)
             embeddings_file = os.path.join(top_dir,
                                            Inst2Vec.__data_dir,
                                            Inst2Vec.__embeddings_file)
@@ -176,7 +176,7 @@ class Inst2Vec:
             top_dir = os.path.join(os.environ.get('HOME'), '.local')
             if not os.path.isdir(os.path.join(top_dir, 'yacos')):
                 lg.error('YaCoS data does not exist.')
-                sys.sys.exit(1)
+                sys.exit(1)
             vocabulary_dir = os.path.join(top_dir, Inst2Vec.__data_dir)
 
         # Prepare the directories
@@ -239,7 +239,7 @@ class Inst2Vec:
             top_dir = os.path.join(os.environ.get('HOME'), '.local')
             if not os.path.isdir(os.path.join(top_dir, 'yacos')):
                 lg.error('YaCoS data does not exist.')
-                sys.sys.exit(1)
+                sys.exit(1)
             embeddings_file = os.path.join(top_dir,
                                            Inst2Vec.__data_dir,
                                            Inst2Vec.__embeddings_file)
@@ -248,7 +248,7 @@ class Inst2Vec:
             top_dir = os.path.join(os.environ.get('HOME'), '.local')
             if not os.path.isdir(os.path.join(top_dir, 'yacos')):
                 lg.error('YaCoS data does not exist.')
-                sys.sys.exit(1)
+                sys.exit(1)
             vocabulary_dir = os.path.join(top_dir, Inst2Vec.__data_dir)
 
         Inst2Vec.__data_directory_seq = llvm_ir_to_trainable(
@@ -287,7 +287,7 @@ class Inst2Vec:
         top_dir = os.path.join(os.environ.get('HOME'), '.local')
         if not os.path.isdir(os.path.join(top_dir, 'yacos')):
             lg.error('YaCoS data does not exist.')
-            sys.sys.exit(1)
+            sys.exit(1)
         embeddings_file = os.path.join(top_dir,
                                        Inst2Vec.__data_dir,
                                        Inst2Vec.__embeddings_file)
