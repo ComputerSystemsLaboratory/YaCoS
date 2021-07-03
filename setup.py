@@ -14,7 +14,7 @@ from shutil import copyfile, copymode
 # gensim 3.4.0
 install_requires = [
     "gitpython",
-    "numpy",
+    "numpy~=1.19.2",
     "pygraphviz",
     "appdirs",
     "pandas",
@@ -24,11 +24,11 @@ install_requires = [
     "pygmo",
     "scikit-learn",
     "scipy",
-    "numpy",
     "matplotlib",
     "seaborn",
     "networkx",
     "gensim==3.4.0",
+    "six==1.15.0",
     "wget",
     "python-Levenshtein",
     "nltk",
