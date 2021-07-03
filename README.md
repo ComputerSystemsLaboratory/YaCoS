@@ -88,6 +88,7 @@ YaCoS has support for several code representations, some of which come from othe
 # How to use YaCoS
 
  YaCoS provides several examples on how to extract representations, generate training data, create tasks, and others.
+ Examples are located inside `examples` directory.
 
 - **Extract Code Representation**
    - *AST graphs*
@@ -149,6 +150,11 @@ YaCoS has support for several code representations, some of which come from othe
 
 # Installation
 
+There are two ways to install YaCoS. Building directing from source or using a 
+Docker image.
+
+## Building from source
+
 YaCoS is compatible with Python 3.8, and is tested on Ubuntu 20.04. Other Linux distros should work as well.
 
 To install YaCoS, follow these two steps:
@@ -163,6 +169,31 @@ To install YaCoS, follow these two steps:
   ./install_deps.sh
   ./setup.py [test|build|install]
 ```
+
+## Using a Docker image
+
+A Dockerfile is provided used to build the YaCoS' docker image. In order to build 
+it, use:
+
+```
+docker build -t yacos:2.0 .
+```
+
+And it will create a docker image called `yacos:2.0` with an user named `nonroot`. 
+A container can be instantiated and YaCoS can be tested using:
+
+```
+docker run -it --rm yacos:2.0 python -c 'import yacos'
+```
+
+Finally, user's directories can be exposed to Docker container using `-v` docker option. 
+For example, we can mount user's `~/data` directory into the container (and access it), at 
+`/home/nonroot/data/` using:
+
+```
+docker run -it --rm -v ~/data:/home/nonroot/data/ yacos:2.0 bash
+```
+
 
 # Datasets
 
