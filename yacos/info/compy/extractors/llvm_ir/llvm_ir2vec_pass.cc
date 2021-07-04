@@ -44,7 +44,7 @@ bool ExtractorPass::runOnModule(::llvm::Module &module) {
   if (!file_exists(vocabulary))
       throw std::runtime_error("YaCoS data does not exist.");
 
-  auto ir2vec = IR2Vec::Embeddings(module, IR2Vec::IR2VecMode::FlowAware,
+  auto ir2vec = IR2Vec::Embeddings(module, IR2Vec::IR2VecMode::Symbolic /*FlowAware*/,
                                    vocabulary);
 
   // Getting Instruction vectors corresponding to the
