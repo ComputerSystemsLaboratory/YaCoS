@@ -92,8 +92,8 @@ class Sequence(object):
             lg.error('YaCoS data does not exist.')
             sys.exit(1)
 
-        Sequence.__w2v_model_syntax_seq = Word2Vec.load(
-                    os.path.join(top_dir, Sequence.__w2v_dir, MODEL)
+        self.__w2v_model_syntax_seq = Word2Vec.load(
+                    os.path.join(top_dir, self.__w2v_dir, MODEL)
         )
 
     def __load_word2vec_model_syntax_token_kind(self, skip_gram=False):
@@ -108,8 +108,8 @@ class Sequence(object):
             lg.error('YaCoS data does not exist.')
             sys.exit(1)
 
-        Sequence.__w2v_model_syntax_token_kind = Word2Vec.load(
-                    os.path.join(top_dir,  Sequence.__w2v_dir, MODEL)
+        self.__w2v_model_syntax_token_kind = Word2Vec.load(
+                    os.path.join(top_dir,  self.__w2v_dir, MODEL)
         )
 
     def __load_word2vec_model_syntax_token_kind_variable(self,
@@ -125,8 +125,8 @@ class Sequence(object):
             lg.error('YaCoS data does not exist.')
             sys.exit(1)
 
-        Sequence.__w2v_model_syntax_token_kind_variable = Word2Vec.load(
-                    os.path.join(top_dir, Sequence.__w2v_dir, MODEL)
+        self.__w2v_model_syntax_token_kind_variable = Word2Vec.load(
+                    os.path.join(top_dir, self.__w2v_dir, MODEL)
         )
 
     def __load_word2vec_model_llvm_seq(self, skip_gram=False):
@@ -141,12 +141,11 @@ class Sequence(object):
             lg.error('YaCoS data does not exist.')
             sys.exit(1)
 
-        Sequence.__w2v_model_llvm_seq = Word2Vec.load(
-                    os.path.join(top_dir, Sequence.__w2v_dir, MODEL)
+        self.__w2v_model_llvm_seq = Word2Vec.load(
+                    os.path.join(top_dir, self.__w2v_dir, MODEL)
         )
 
-    @staticmethod
-    def __load_doc2vec_model_syntax_seq():
+    def __load_doc2vec_model_syntax_seq(self):
         """Load a doc2vec model."""
         MODEL = 'd2v_syntax_seq.model'
 
@@ -155,12 +154,11 @@ class Sequence(object):
             lg.error('YaCoS data does not exist.')
             sys.exit(1)
 
-        Sequence.__d2v_model_syntax_seq = Doc2Vec.load(
-                    os.path.join(top_dir, Sequence.__d2v_dir, MODEL)
+        self.__d2v_model_syntax_seq = Doc2Vec.load(
+                    os.path.join(top_dir, self.__d2v_dir, MODEL)
         )
 
-    @staticmethod
-    def __load_doc2vec_model_syntax_token_kind():
+    def __load_doc2vec_model_syntax_token_kind(self):
         """Load a doc2vec model."""
         MODEL = 'd2v_syntax_token_kind.model'
 
@@ -169,12 +167,11 @@ class Sequence(object):
             lg.error('YaCoS data does not exist.')
             sys.exit(1)
 
-        Sequence.__d2v_model_syntax_token_kind = Doc2Vec.load(
-                    os.path.join(top_dir, Sequence.__d2v_dir, MODEL)
+        self.__d2v_model_syntax_token_kind = Doc2Vec.load(
+                    os.path.join(top_dir, self.__d2v_dir, MODEL)
         )
 
-    @staticmethod
-    def __load_doc2vec_model_syntax_token_kind_variable():
+    def __load_doc2vec_model_syntax_token_kind_variable(self):
         """Load a doc2vec model."""
         MODEL = 'd2v_syntax_token_kind_variable.model'
 
@@ -183,12 +180,11 @@ class Sequence(object):
             lg.error('YaCoS data does not exist.')
             sys.exit(1)
 
-        Sequence.__d2v_model_syntax_token_kind_variable = Doc2Vec.load(
-                    os.path.join(top_dir, Sequence.__d2v_dir, MODEL)
+        self.__d2v_model_syntax_token_kind_variable = Doc2Vec.load(
+                    os.path.join(top_dir, self.__d2v_dir, MODEL)
         )
 
-    @staticmethod
-    def __load_doc2vec_model_llvm_seq():
+    def __load_doc2vec_model_llvm_seq(self):
         """Load a doc2vec model."""
         MODEL = 'd2v_llvm_seq.model'
 
@@ -197,8 +193,8 @@ class Sequence(object):
             lg.error('YaCoS data does not exist.')
             sys.exit(1)
 
-        Sequence.__d2v_model_llvm_seq = Doc2Vec.load(
-                    os.path.join(top_dir, Sequence.__d2v_dir, MODEL)
+        self.__d2v_model_llvm_seq = Doc2Vec.load(
+                    os.path.join(top_dir, self.__d2v_dir, MODEL)
         )
 
     def get_token_list(self):
@@ -216,23 +212,23 @@ class Sequence(object):
                           skip_gram=False):
         """Return the word2vec for each seq."""
         if sequence_type == 'syntax_seq':
-            if not Sequence.__w2v_model_syntax_seq:
+            if not self.__w2v_model_syntax_seq:
                 self.__load_word2vec_model_syntax_seq(skip_gram)
-            model = Sequence.__w2v_model_syntax_seq
+            model = self.__w2v_model_syntax_seq
         elif sequence_type == 'syntax_token_kind':
-            if not Sequence.__w2v_model_syntax_token_kind:
+            if not self.__w2v_model_syntax_token_kind:
                 self.__load_word2vec_model_syntax_token_kind(skip_gram)
-            model = Sequence.__w2v_model_syntax_token_kind
+            model = self.__w2v_model_syntax_token_kind
         elif sequence_type == 'syntax_token_kind_variable':
-            if not Sequence.__w2v_model_syntax_token_kind_variable:
+            if not self.__w2v_model_syntax_token_kind_variable:
                 self.__load_word2vec_model_syntax_token_kind_variable(
                     skip_gram
                 )
-            model = Sequence.__w2v_model_syntax_token_kind_variable
+            model = self.__w2v_model_syntax_token_kind_variable
         elif sequence_type == 'llvm_seq':
-            if not Sequence.__w2v_model_llvm_seq:
+            if not self.__w2v_model_llvm_seq:
                 self.__load_word2vec_model_llvm_seq(skip_gram)
-            model = Sequence.__w2v_model_llvm_seq
+            model = self.__w2v_model_llvm_seq
         else:
             lg.error('Sequence type does not exist.')
             sys.error(1)
@@ -251,21 +247,21 @@ class Sequence(object):
     def get_doc2vec(self, sequence_type='syntax_seq'):
         """Return the doc2vec features."""
         if sequence_type == 'syntax_seq':
-            if not Sequence.__d2v_model_syntax_seq:
+            if not self.__d2v_model_syntax_seq:
                 self.__load_doc2vec_model_syntax_seq()
-            model = Sequence.__d2v_model_syntax_seq
+            model = self.__d2v_model_syntax_seq
         elif sequence_type == 'syntax_token_kind':
-            if not Sequence.__d2v_model_syntax_token_kind:
+            if not self.__d2v_model_syntax_token_kind:
                 self.__load_doc2vec_model_syntax_token_kind()
-            model = Sequence.__d2v_model_syntax_token_kind
+            model = self.__d2v_model_syntax_token_kind
         elif sequence_type == 'syntax_token_kind_variable':
-            if not Sequence.__d2v_model_syntax_token_kind_variable:
+            if not self.__d2v_model_syntax_token_kind_variable:
                 self.__load_doc2vec_model_syntax_token_variable_kind()
-            model = Sequence.__d2v_model_syntax_token_variable_kind
+            model = self.__d2v_model_syntax_token_variable_kind
         elif sequence_type == 'llvm_seq':
-            if not Sequence.__d2v_model_llvm_seq:
+            if not self.__d2v_model_llvm_seq:
                 self.__load_doc2vec_model_llvm_seq()
-            model = Sequence.__d2v_model_llvm_seq
+            model = self.__d2v_model_llvm_seq
         else:
             lg.error('Sequence type does not exist.')
             sys.error(1)
@@ -365,10 +361,10 @@ class Graph(object):
             sys.exit(1)
 
         filename = os.path.join(top_dir, self.__i2v_dir, DICTIONARY)
-        Graph.__inst2vec_dictionary = IO.load_pickle_or_fail(filename)
+        self.__inst2vec_dictionary = IO.load_pickle_or_fail(filename)
 
         filename = os.path.join(top_dir, self.__i2v_dir, EMBEDDINGS)
-        Graph.__inst2vec_embeddings = IO.load_pickle_or_fail(filename)
+        self.__inst2vec_embeddings = IO.load_pickle_or_fail(filename)
 
     def __load_ir2vec_data(self):
         """Load the dictionary and embeddings."""
@@ -381,10 +377,10 @@ class Graph(object):
             sys.exit(1)
 
         filename = os.path.join(top_dir, self.__ir2v_dir, DICTIONARY)
-        Graph.__ir2vec_dictionary = IO.load_pickle_or_fail(filename)
+        self.__ir2vec_dictionary = IO.load_pickle_or_fail(filename)
 
         filename = os.path.join(top_dir, self.__ir2v_dir, EMBEDDINGS)
-        Graph.__ir2vec_embeddings = IO.load_pickle_or_fail(filename)
+        self.__ir2vec_embeddings = IO.load_pickle_or_fail(filename)
 
     def __load_word2vec_model_ast(self, skip_gram=False):
         """Load a word2vec model."""
@@ -398,9 +394,9 @@ class Graph(object):
             lg.error('YaCoS data does not exist.')
             sys.exit(1)
 
-        Graph.__w2v_model_ast = Word2Vec.load(os.path.join(top_dir,
-                                                           self.__w2v_dir,
-                                                           MODEL))
+        self.__w2v_model_ast = Word2Vec.load(os.path.join(top_dir,
+                                                          self.__w2v_dir,
+                                                          MODEL))
 
     def __load_word2vec_model_ir_graph(self, skip_gram=False):
         """Load a word2vec model."""
@@ -414,7 +410,7 @@ class Graph(object):
             lg.error('YaCoS data does not exist.')
             sys.exit(1)
 
-        Graph.__w2v_model_ir_graph = Word2Vec.load(
+        self.__w2v_model_ir_graph = Word2Vec.load(
             os.path.join(top_dir, self.__w2v_dir, MODEL)
         )
 
@@ -430,7 +426,7 @@ class Graph(object):
             lg.error('YaCoS data does not exist.')
             sys.exit(1)
 
-        Graph.__w2v_model_asm_graph = Word2Vec.load(
+        self.__w2v_model_asm_graph = Word2Vec.load(
             os.path.join(top_dir, self.__w2v_dir, MODEL)
         )
 
@@ -444,7 +440,7 @@ class Graph(object):
             sys.exit(1)
 
         filename = os.path.join(top_dir, self.__boo_dir, DICTIONARY)
-        Graph.__boo_ast = IO.load_pickle_or_fail(filename)
+        self.__boo_ast = IO.load_pickle_or_fail(filename)
 
     def __load_boo_ir(self):
         """Load bag of words (LLVM  IR) dictionary."""
@@ -456,7 +452,7 @@ class Graph(object):
             sys.exit(1)
 
         filename = os.path.join(top_dir, self.__boo_dir, DICTIONARY)
-        Graph.__boo_ir = IO.load_pickle_or_fail(filename)
+        self.__boo_ir = IO.load_pickle_or_fail(filename)
 
     def __load_boo_asm(self):
         """Load bag of words (Assembly) dictionary."""
@@ -468,7 +464,7 @@ class Graph(object):
             sys.exit(1)
 
         filename = os.path.join(top_dir, self.__boo_dir, DICTIONARY)
-        Graph.__boo_asm = IO.load_pickle_or_fail(filename)
+        self.__boo_asm = IO.load_pickle_or_fail(filename)
 
     def __get_node_attr_dict(self):
         """Return the node attributes."""
@@ -478,17 +474,17 @@ class Graph(object):
     def __opcodes2bag_of_words(self, opcodes, graph_type, compact):
         """Tranform dictionary into a vector."""
         if graph_type == 'ast':
-            if not Graph.__boo_ast:
+            if not self.__boo_ast:
                 self.__load_boo_ast()
-            boo = Graph.__boo_ast
+            boo = self.__boo_ast
         elif graph_type == 'asm':
-            if not Graph.__boo_asm:
+            if not self.__boo_asm:
                 self.__load_boo_asm()
-            boo = Graph.__boo_asm
+            boo = self.__boo_asm
         elif graph_type == 'ir':
-            if not Graph.__boo_ir:
+            if not self.__boo_ir:
                 self.__load_boo_ir()
-            boo = Graph.__boo_ir
+            boo = self.__boo_ir
         else:
             lg.error('Boo type does not exist.')
             sys.exit(1)
@@ -538,14 +534,14 @@ class Graph(object):
     def get_nodes_inst2vec_embeddings(self):
         """Return the nodes embeddings (int2vec)."""
         nodes_keys = list(self.__get_node_attr_dict().keys())
-        if not Graph.__inst2vec_dictionary:
+        if not self.__inst2vec_dictionary:
             self.__load_inst2vec_data()
 
         nodes = []
         for (n, data) in self.G.nodes(data=True):
             if "value" in data:
-                embeddings = Graph.__inst2vec_embeddings[
-                                    Graph.__inst2vec_dictionary['!IMMEDIATE']
+                embeddings = self.__inst2vec_embeddings[
+                                    self.__inst2vec_dictionary['!IMMEDIATE']
                                     ]
                 nodes.append((nodes_keys.index(n), embeddings))
             elif "insts" in data:
@@ -559,13 +555,13 @@ class Graph(object):
                     preprocessed = i2v_pre.PreprocessStatement(
                                         preprocessed[0][0]
                                    )
-                    if preprocessed in Graph.__inst2vec_dictionary:
-                        embeddings = Graph.__inst2vec_embeddings[
-                                    Graph.__inst2vec_dictionary[preprocessed]
-                                    ]
+                    if preprocessed in self.__inst2vec_dictionary:
+                        embeddings = self.__inst2vec_embeddings[
+                                    self.__inst2vec_dictionary[preprocessed]
+                                     ]
                     else:
-                        index = Graph.__inst2vec_dictionary['!UNK']
-                        embeddings = Graph.__inst2vec_embeddings[index]
+                        index = self.__inst2vec_dictionary['!UNK']
+                        embeddings = self.__inst2vec_embeddings[index]
                     emb.append(embeddings)
                 nodes.append((nodes_keys.index(n),
                               [sum(x) for x in zip(*emb)]))
@@ -575,16 +571,16 @@ class Graph(object):
                 else:
                     label = data["attr"]
                 if label == 'bb':
-                    embeddings = Graph.__inst2vec_embeddings[
-                                    Graph.__inst2vec_dictionary['!BB']
+                    embeddings = self.__inst2vec_embeddings[
+                                    self.__inst2vec_dictionary['!BB']
                                     ]
                 elif label == 'function':
-                    embeddings = Graph.__inst2vec_embeddings[
-                                    Graph.__inst2vec_dictionary['!MAGIC']
+                    embeddings = self.__inst2vec_embeddings[
+                                    self.__inst2vec_dictionary['!MAGIC']
                                     ]
                 else:
-                    embeddings = Graph.__inst2vec_embeddings[
-                                    Graph.__inst2vec_dictionary['!IDENTIFIER']
+                    embeddings = self.__inst2vec_embeddings[
+                                    self.__inst2vec_dictionary['!IDENTIFIER']
                                     ]
                 nodes.append((nodes_keys.index(n), embeddings))
 
@@ -593,14 +589,14 @@ class Graph(object):
     def get_nodes_ir2vec_embeddings(self):
         """Return the nodes embeddings (ir2vec)."""
         nodes_keys = list(self.__get_node_attr_dict().keys())
-        if not Graph.__ir2vec_dictionary:
-            self.__load_inst2vec_data()
+        if not self.__ir2vec_dictionary:
+            self.__load_ir2vec_data()
 
         nodes = []
         for (n, data) in self.G.nodes(data=True):
             if "value" in data:
-                embeddings = Graph.__ir2vec_embeddings[
-                                    Graph.__ir2vec_dictionary['!IMMEDIATE']
+                embeddings = self.__ir2vec_embeddings[
+                                    self.__ir2vec_dictionary['!IMMEDIATE']
                                     ]
                 nodes.append((nodes_keys.index(n), embeddings))
             elif "insts" in data:
@@ -614,13 +610,13 @@ class Graph(object):
                     preprocessed = i2v_pre.PreprocessStatement(
                                         preprocessed[0][0]
                                    )
-                    if preprocessed in Graph.__ir2vec_dictionary:
-                        embeddings = Graph.__ir2vec_embeddings[
-                                    Graph.__ir2vec_dictionary[preprocessed]
+                    if preprocessed in self.__ir2vec_dictionary:
+                        embeddings = self.__ir2vec_embeddings[
+                                    self.__ir2vec_dictionary[preprocessed]
                                     ]
                     else:
-                        index = Graph.__ir2vec_dictionary['!UNK']
-                        embeddings = Graph.__ir2vec_embeddings[index]
+                        index = self.__ir2vec_dictionary['!UNK']
+                        embeddings = self.__ir2vec_embeddings[index]
                     emb.append(embeddings)
                 nodes.append((nodes_keys.index(n),
                               [sum(x) for x in zip(*emb)]))
@@ -630,16 +626,16 @@ class Graph(object):
                 else:
                     label = data["attr"]
                 if label == 'bb':
-                    embeddings = Graph.__ir2vec_embeddings[
-                                    Graph.__ir2vec_dictionary['!BB']
+                    embeddings = self.__ir2vec_embeddings[
+                                    self.__ir2vec_dictionary['!BB']
                                     ]
                 elif label == 'function':
-                    embeddings = Graph.__ir2vec_embeddings[
-                                    Graph.__ir2vec_dictionary['!MAGIC']
+                    embeddings = self.__ir2vec_embeddings[
+                                    self.__ir2vec_dictionary['!MAGIC']
                                     ]
                 else:
-                    embeddings = Graph.__ir2vec_embeddings[
-                                    Graph.__ir2vec_dictionary['!IDENTIFIER']
+                    embeddings = self.__ir2vec_embeddings[
+                                    self.__ir2vec_dictionary['!IDENTIFIER']
                                     ]
                 nodes.append((nodes_keys.index(n), embeddings))
 
@@ -652,10 +648,12 @@ class Graph(object):
         nodes_keys = list(self.__get_node_attr_dict().keys())
         nodes = []
         for (n, data) in self.G.nodes(data=True):
+            if 'opcodes' not in data:
+                continue
             nodes.append((nodes_keys.index(n),
-                          Graph.__opcodes2bat_of_words(data['opcodes'],
-                                                       graph_type,
-                                                       compact)))
+                          self.__opcodes2bag_of_words(data['opcodes'],
+                                                      graph_type,
+                                                      compact)))
         return nodes
 
     def get_nodes_word2vec_embeddings(self,
@@ -665,17 +663,17 @@ class Graph(object):
         nodes_keys = list(self.__get_node_attr_dict().keys())
 
         if graph_type == 'asm':
-            if not Graph.__w2v_model_asm_graph:
+            if not self.__w2v_model_asm_graph:
                 self.__load_word2vec_model_asm_graph(skip_gram)
-            model = Graph.__w2v_model_asm_graph
+            model = self.__w2v_model_asm_graph
         elif graph_type == 'ast':
-            if not Graph.__w2v_model_ast_graph:
+            if not self.__w2v_model_ast_graph:
                 self.__load_word2vec_model_ast_graph(skip_gram)
-            model = Graph.__w2v_model_ast_graph
+            model = self.__w2v_model_ast_graph
         elif graph_type == 'ir':
-            if not Graph.__w2v_model_ir_graph:
+            if not self.__w2v_model_ir_graph:
                 self.__load_word2vec_model_ir_graph(skip_gram)
-            model = Graph.__w2v_model_ir_graph
+            model = self.__w2v_model_ir_graph
         else:
             lg.error('Graph_type does not exist.')
             sys.exit(1)
@@ -685,18 +683,32 @@ class Graph(object):
         nodes = []
         for (n, data) in self.G.nodes(data=True):
             emb = []
-            for opcode in data['opcodes']:
-                if type(opcode) is tuple:
-                    label = "\n".join(opcode)
+            if 'value' in data:
+                nodes.append((nodes_keys.index(n), model.wv['immediate']))
+            elif 'opcodes' in data:
+                for opcode in data['opcodes']:
+                    if type(opcode) is tuple:
+                        label = "\n".join(opcode)
+                    else:
+                        label = opcode
+                    if label.lower() in model.wv.vocab:
+                        emb.append(model.wv[label.lower()])
+                    else:
+                        emb.append(unknown)
+                nodes.append((nodes_keys.index(n),
+                              [sum(x) for x in zip(*emb)]))
+            elif "attr" in data:
+                if type(data["attr"]) is tuple:
+                    label = "\n".join(data["attr"])
                 else:
-                    label = opcode
-                label = label.replace(' ', '')
-                if label.lower() in model.wv.vocab:
-                    nodes.append(model.wv[label.lower()])
+                    label = data["attr"]
+                if label == 'bb':
+                    embeddings = model.wv['bb']
+                elif label == 'function':
+                    embeddings = model.wv['magic']
                 else:
-                    emb.append(unknown)
-            nodes.append((nodes_keys.index(n), [sum(x) for x in zip(*emb)]))
-
+                    embeddings = model.wv['identifier']
+                nodes.append((nodes_keys.index(n), embeddings))
         return nodes
 
     def get_edge_str_list(self):
@@ -791,7 +803,7 @@ class Graph(object):
 
     def get_edge_list_inst2vec_embeddings(self):
         """Return the edges and inst2vec embeddings."""
-        if not Graph.__inst2vec_dictionary:
+        if not self.__inst2vec_dictionary:
             self.__load_inst2vec_data()
 
         nodes_keys = list(self.__get_node_attr_dict().keys())
@@ -802,12 +814,12 @@ class Graph(object):
             edges.append(
                 (
                     nodes_keys.index(node1),
-                    Graph.__inst2vec_embeddings[
-                            Graph.__inst2vec_dictionary[edge_type]
+                    self.__inst2vec_embeddings[
+                            self.__inst2vec_dictionary[edge_type]
                     ]
-                    if edge_type in Graph.__inst2vec_dictionary
-                    else Graph.__inst2vec_embeddings[
-                                Graph.__inst2vec_dictionary['!EUNK']
+                    if edge_type in self.__inst2vec_dictionary
+                    else self.__inst2vec_embeddings[
+                                self.__inst2vec_dictionary['!EUNK']
                          ],
                     nodes_keys.index(node2)
                 )
@@ -817,7 +829,7 @@ class Graph(object):
 
     def get_edge_list_ir2vec_embeddings(self):
         """Return the edges and ir2vec embeddings."""
-        if not Graph.__ir2vec_dictionary:
+        if not self.__ir2vec_dictionary:
             self.__load_ir2vec_data()
 
         nodes_keys = list(self.__get_node_attr_dict().keys())
@@ -828,12 +840,12 @@ class Graph(object):
             edges.append(
                 (
                     nodes_keys.index(node1),
-                    Graph.__ir2vec_embeddings[
-                            Graph.__ir2vec_dictionary[edge_type]
+                    self.__ir2vec_embeddings[
+                        self.__ir2vec_dictionary[edge_type]
                     ]
-                    if edge_type in Graph.__ir2vec_dictionary
-                    else Graph.__ir2vec_embeddings[
-                                Graph.__ir2vec_dictionary['!EUNK']
+                    if edge_type in self.__ir2vec_dictionary
+                    else self.__ir2vec_embeddings[
+                            self.__ir2vec_dictionary['!EUNK']
                          ],
                     nodes_keys.index(node2)
                 )
@@ -846,17 +858,17 @@ class Graph(object):
                                           skip_gram=False):
         """Return the nodes embeddings (word2vec)."""
         if graph_type == 'asm':
-            if not Graph.__w2v_model_asm_graph:
+            if not self.__w2v_model_asm_graph:
                 self.__load_word2vec_model_asm_graph(skip_gram)
-            model = Graph.__w2v_model_asm_graph
+            model = self.__w2v_model_asm_graph
         elif graph_type == 'ast':
-            if not Graph.__w2v_model_ast_graph:
+            if not self.__w2v_model_ast_graph:
                 self.__load_word2vec_model_ast_graph(skip_gram)
-            model = Graph.__w2v_model_ast_graph
+            model = self.__w2v_model_ast_graph
         elif graph_type == 'ir':
-            if not Graph.__w2v_model_ir_graph:
+            if not self.__w2v_model_ir_graph:
                 self.__load_word2vec_model_ir_graph(skip_gram)
-            model = Graph.__w2v_model_ir_graph
+            model = self.__w2v_model_ir_graph
         else:
             lg.error('Graph_type does not exist.')
             sys.exit(1)
@@ -901,19 +913,19 @@ class Graph(object):
 
     def get_edges_inst2vec_embeddings(self):
         """Return the edges and inst2vec embeddings."""
-        if not Graph.__inst2vec_dictionary:
+        if not self.__inst2vec_dictionary:
             self.__load_ir2vec_data()
 
         edges = []
         for _, _, data in self.G.edges(data=True):
             edge_type = '!E{}'.format(data["attr"].upper())
             edges.append(
-                Graph.__inst2vec_embeddings[
-                        Graph.__inst2vec_dictionary[edge_type]
+                self.__inst2vec_embeddings[
+                    self.__inst2vec_dictionary[edge_type]
                 ]
-                if edge_type in Graph.__inst2vec_dictionary
-                else Graph.__inst2vec_embeddings[
-                            Graph.__inst2vec_dictionary['!EUNK']
+                if edge_type in self.__inst2vec_dictionary
+                else self.__inst2vec_embeddings[
+                        self.__inst2vec_dictionary['!EUNK']
                      ]
             )
 
@@ -921,40 +933,40 @@ class Graph(object):
 
     def get_edges_ir2vec_embeddings(self):
         """Return the edges and ir2vec embeddings."""
-        if not Graph.__ir2vec_dictionary:
+        if not self.__ir2vec_dictionary:
             self.__load_ir2vec_data()
 
         edges = []
         for _, _, data in self.G.edges(data=True):
             edge_type = '!E{}'.format(data["attr"].upper())
             edges.append(
-                Graph.__ir2vec_embeddings[
-                        Graph.__ir2vec_dictionary[edge_type]
+                self.__ir2vec_embeddings[
+                    self.__ir2vec_dictionary[edge_type]
                 ]
-                if edge_type in Graph.__ir2vec_dictionary
-                else Graph.__ir2vec_embeddings[
-                            Graph.__ir2vec_dictionary['!EUNK']
+                if edge_type in self.__ir2vec_dictionary
+                else self.__ir2vec_embeddings[
+                        self.__ir2vec_dictionary['!EUNK']
                      ]
             )
 
         return edges
 
     def get_edges_word2vec_embeddings(self,
-                                     graph_type='ir',
-                                     skip_gram=False):
+                                      graph_type='ir',
+                                      skip_gram=False):
         """Return the nodes embeddings (word2vec)."""
         if graph_type == 'asm':
-            if not Graph.__w2v_model_asm_graph:
+            if not self.__w2v_model_asm_graph:
                 self.__load_word2vec_model_asm_graph(skip_gram)
-            model = Graph.__w2v_model_asm_graph
+            model = self.__w2v_model_asm_graph
         elif graph_type == 'ast':
-            if not Graph.__w2v_model_ast_graph:
+            if not self.__w2v_model_ast_graph:
                 self.__load_word2vec_model_ast_graph(skip_gram)
-            model = Graph.__w2v_model_ast_graph
+            model = self.__w2v_model_ast_graph
         elif graph_type == 'ir':
-            if not Graph.__w2v_model_ir_graph:
+            if not self.__w2v_model_ir_graph:
                 self.__load_word2vec_model_ir_graph(skip_gram)
-            model = Graph.__w2v_model_ir_graph
+            model = self.__w2v_model_ir_graph
         else:
             lg.error('Graph_type does not exist.')
             sys.exit(1)
@@ -965,7 +977,7 @@ class Graph(object):
             edges.append(
                     model.wv[edge_type]
                     if edge_type in model.wv.vocab
-                    else Graph.model.wv['eunk']
+                    else model.wv['eunk']
             )
 
         return edges
@@ -1120,17 +1132,17 @@ class Graph(object):
 
     def networkx_inst2vec(self):
         """Return a Networkx representation using embeddings (int2vec)."""
-        if not Graph.__inst2vec_dictionary:
+        if not self.__inst2vec_dictionary:
             self.__load_inst2vec_data()
 
         # We create a new graph object because attr modifications.
         G = nx.MultiDiGraph()
 
-        augmented = {'!UNK': Graph.__inst2vec_embeddings[8564],
-                     '!IDENTIFIER': Graph.__inst2vec_embeddings[8565],
-                     '!IMMEDIATE': Graph.__inst2vec_embeddings[8566],
-                     '!MAGIC': Graph.__inst2vec_embeddings[8567],
-                     '!BB': Graph.__inst2vec_embeddings[8568]}
+        augmented = {'!UNK': self.__inst2vec_embeddings[8564],
+                     '!IDENTIFIER': self.__inst2vec_embeddings[8565],
+                     '!IMMEDIATE': self.__inst2vec_embeddings[8566],
+                     '!MAGIC': self.__inst2vec_embeddings[8567],
+                     '!BB': self.__inst2vec_embeddings[8568]}
         node_idx = 0
         nodes = {}
 
@@ -1148,9 +1160,9 @@ class Graph(object):
                     inst = data["inst"]
                 preprocessed, _ = i2v_pre.preprocess([[inst]])
                 preprocessed = i2v_pre.PreprocessStatement(preprocessed[0][0])
-                if preprocessed in Graph.__inst2vec_dictionary:
-                    embeddings = Graph.__inst2vec_dictionary[preprocessed]
-                    embeddings = Graph.__inst2vec_embeddings[embeddings]
+                if preprocessed in self.__inst2vec_dictionary:
+                    embeddings = self.__inst2vec_dictionary[preprocessed]
+                    embeddings = self.__inst2vec_embeddings[embeddings]
                 else:
                     embeddings = augmented['!UNK']
                 G.add_node(nodes[n], embeddings=embeddings)
