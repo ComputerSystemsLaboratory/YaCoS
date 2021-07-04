@@ -48,7 +48,7 @@ from tensorflow.keras.layers import Dense, Conv1D, MaxPool1D, Dropout, Flatten
 from tensorflow.keras.losses import categorical_crossentropy
 
 
-def graph2stellar(data, n_features):
+def graph2stellar(data, n_features, graph='ir'):
     """Convert the graph to StellarGraph representation."""
 
     s_labels = []
@@ -60,17 +60,22 @@ def graph2stellar(data, n_features):
             elif n_features == 'ir2vec':
                 nodes_features = graph.get_nodes_ir2vec_embeddings()
             elif n_features == 'word2vec_ast':
-                nodes_features = graph.get_nodes_word2vec_ast_embeddings()
+                nodes_features = graph.get_nodes_word2vec_embeddings('ast')
             elif n_features == 'word2vec_ir':
-                nodes_features = graph.get_nodes_word2vec_ir_embeddings()
+                nodes_features = graph.get_nodes_word2vec_embeddings('ir')
             elif n_features == 'word2vec_asm':
-                nodes_features = graph.get_nodes_word2vec_asm_embeddings()
+                nodes_features = graph.get_nodes_word2vec_embeddings('asm')
             elif n_features == 'bag_of_word':
-                nodes_features = graph.get_nodes_bag_of_words_embeddings()
+                nodes_features = graph.get_nodes_bag_of_words_embeddings(graph)
+
+            n_index = [index for index, _ in nodes_features]
+            n_features = [features for _, features in nodes_features]
+
+            node_data = pd.DataFrame({"embeddings": n_features}, index=n_index)
 
             edges = graph.get_edges_dataFrame()
 
-            s_graph = StellarDiGraph(nodes_features,
+            s_graph = StellarDiGraph(node_data,
                                      edges=edges,
                                      edge_type_column="type")
             # print(s_graph.info(show_attributes=True, truncate=None))
@@ -145,7 +150,7 @@ def prepare_data(data_directory,
         for source in sources:
             # Extract "information" from the file
             # (data to construct the graph).
-            if graph_type == 'asm':
+            if graph_type == 'asmcompact':
                 print('not implemented yet')
                 sys.exit(1)
             else:
@@ -184,6 +189,7 @@ def execute(argv):
     dataset = prepare_data(FLAGS.dataset_directory, FLAGS.graph)
 
     if FLAGS.graph in ['ast', 'astdata', 'astdatacfg']:
+        graph = 'ast'
         if FLAGS.node_features == 'word2vec':
             n_features = 'word2vec_ast'
         elif FLAGS.node_features == 'bag_of_words':
@@ -192,6 +198,7 @@ def execute(argv):
             logging.error('Invalid node features.')
             sys.exit(1)
     elif FLAGS.graph in ['asmcompact']:
+        graph = 'asm'
         if FLAGS.node_features == 'word2vec':
             n_features = 'word2vec_asm'
         elif FLAGS.node_features == 'bag_of_words':
@@ -200,6 +207,7 @@ def execute(argv):
             logging.error('Invalid node features.')
             sys.exit(1)
     else:
+        graph = 'ir'
         if FLAGS.node_features == 'word2vec':
             n_features = 'word2vec_ir'
         elif FLAGS.nodes_features == 'inst2vec':
@@ -209,7 +217,7 @@ def execute(argv):
         elif FLAGS.node_features == 'bag_of_words':
             n_features = 'bag_of_words'
 
-    graphs, graph_labels = graph2stellar(dataset, n_features)
+    graphs, graph_labels = graph2stellar(dataset, n_features, graph)
 
     # Summary statistics of the sizes of the graphs
     print('Dataset', flush=True)
