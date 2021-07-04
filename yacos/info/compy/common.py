@@ -485,7 +485,7 @@ class Graph(object):
             if not Graph.__boo_asm:
                 self.__load_boo_asm()
             boo = Graph.__boo_asm
-        elif graph_type == 'llvm':
+        elif graph_type == 'ir':
             if not Graph.__boo_ir:
                 self.__load_boo_ir()
             boo = Graph.__boo_ir
@@ -537,6 +537,7 @@ class Graph(object):
 
     def get_nodes_inst2vec_embeddings(self):
         """Return the nodes embeddings (int2vec)."""
+        nodes_keys = list(self.__get_node_attr_dict().keys())
         if not Graph.__inst2vec_dictionary:
             self.__load_inst2vec_data()
 
@@ -546,7 +547,7 @@ class Graph(object):
                 embeddings = Graph.__inst2vec_embeddings[
                                     Graph.__inst2vec_dictionary['!IMMEDIATE']
                                     ]
-                nodes.append(embeddings)
+                nodes.append((nodes_keys.index(n), embeddings))
             elif "insts" in data:
                 emb = []
                 for inst in data['insts']:
@@ -566,7 +567,8 @@ class Graph(object):
                         index = Graph.__inst2vec_dictionary['!UNK']
                         embeddings = Graph.__inst2vec_embeddings[index]
                     emb.append(embeddings)
-                nodes.append([sum(x) for x in zip(*emb)])
+                nodes.append((nodes_keys.index(n),
+                              [sum(x) for x in zip(*emb)]))
             elif "attr" in data:
                 if type(data["attr"]) is tuple:
                     label = "\n".join(data["attr"])
@@ -576,22 +578,21 @@ class Graph(object):
                     embeddings = Graph.__inst2vec_embeddings[
                                     Graph.__inst2vec_dictionary['!BB']
                                     ]
-                    nodes.append(embeddings)
                 elif label == 'function':
                     embeddings = Graph.__inst2vec_embeddings[
                                     Graph.__inst2vec_dictionary['!MAGIC']
                                     ]
-                    nodes.append(embeddings)
                 else:
                     embeddings = Graph.__inst2vec_embeddings[
                                     Graph.__inst2vec_dictionary['!IDENTIFIER']
                                     ]
-                    nodes.append(embeddings)
+                nodes.append((nodes_keys.index(n), embeddings))
 
-        return np.array(nodes)
+        return nodes
 
     def get_nodes_ir2vec_embeddings(self):
         """Return the nodes embeddings (ir2vec)."""
+        nodes_keys = list(self.__get_node_attr_dict().keys())
         if not Graph.__ir2vec_dictionary:
             self.__load_inst2vec_data()
 
@@ -601,7 +602,7 @@ class Graph(object):
                 embeddings = Graph.__ir2vec_embeddings[
                                     Graph.__ir2vec_dictionary['!IMMEDIATE']
                                     ]
-                nodes.append(embeddings)
+                nodes.append((nodes_keys.index(n), embeddings))
             elif "insts" in data:
                 emb = []
                 for inst in data['insts']:
@@ -621,7 +622,8 @@ class Graph(object):
                         index = Graph.__ir2vec_dictionary['!UNK']
                         embeddings = Graph.__ir2vec_embeddings[index]
                     emb.append(embeddings)
-                nodes.append([sum(x) for x in zip(*emb)])
+                nodes.append((nodes_keys.index(n),
+                              [sum(x) for x in zip(*emb)]))
             elif "attr" in data:
                 if type(data["attr"]) is tuple:
                     label = "\n".join(data["attr"])
@@ -631,35 +633,37 @@ class Graph(object):
                     embeddings = Graph.__ir2vec_embeddings[
                                     Graph.__ir2vec_dictionary['!BB']
                                     ]
-                    nodes.append(embeddings)
                 elif label == 'function':
                     embeddings = Graph.__ir2vec_embeddings[
                                     Graph.__ir2vec_dictionary['!MAGIC']
                                     ]
-                    nodes.append(embeddings)
                 else:
                     embeddings = Graph.__ir2vec_embeddings[
                                     Graph.__ir2vec_dictionary['!IDENTIFIER']
                                     ]
-                    nodes.append(embeddings)
+                nodes.append((nodes_keys.index(n), embeddings))
 
-        return np.array(nodes)
+        return nodes
 
     def get_nodes_bag_of_words_embeddings(self,
-                                          graph_type='llvm',
+                                          graph_type='ir',
                                           compact=False):
         """Return the nodes embeddings (bag of words)."""
+        nodes_keys = list(self.__get_node_attr_dict().keys())
         nodes = []
         for (n, data) in self.G.nodes(data=True):
-            nodes.append(Graph.__opcodes2bat_of_words(data['opcodes'],
-                                                      graph_type,
-                                                      compact))
-        return np.array(nodes)
+            nodes.append((nodes_keys.index(n),
+                          Graph.__opcodes2bat_of_words(data['opcodes'],
+                                                       graph_type,
+                                                       compact)))
+        return nodes
 
     def get_nodes_word2vec_embeddings(self,
-                                      graph_type='llvm',
+                                      graph_type='ir',
                                       skip_gram=False):
         """Return the nodes embeddings (word2vec)."""
+        nodes_keys = list(self.__get_node_attr_dict().keys())
+
         if graph_type == 'asm':
             if not Graph.__w2v_model_asm_graph:
                 self.__load_word2vec_model_asm_graph(skip_gram)
@@ -668,7 +672,7 @@ class Graph(object):
             if not Graph.__w2v_model_ast_graph:
                 self.__load_word2vec_model_ast_graph(skip_gram)
             model = Graph.__w2v_model_ast_graph
-        elif graph_type == 'llvm':
+        elif graph_type == 'ir':
             if not Graph.__w2v_model_ir_graph:
                 self.__load_word2vec_model_ir_graph(skip_gram)
             model = Graph.__w2v_model_ir_graph
@@ -679,7 +683,7 @@ class Graph(object):
         unknown = model.wv['unknown']
 
         nodes = []
-        for (_, data) in self.G.nodes(data=True):
+        for (n, data) in self.G.nodes(data=True):
             emb = []
             for opcode in data['opcodes']:
                 if type(opcode) is tuple:
@@ -691,9 +695,9 @@ class Graph(object):
                     nodes.append(model.wv[label.lower()])
                 else:
                     emb.append(unknown)
-            nodes.append([sum(x) for x in zip(*emb)])
+            nodes.append((nodes_keys.index(n), [sum(x) for x in zip(*emb)]))
 
-        return np.array(nodes)
+        return nodes
 
     def get_edge_str_list(self):
         """Return the edges."""
@@ -724,7 +728,7 @@ class Graph(object):
                     nodes_keys.index(node2)
                 )
             )
-            types.append(data["attr"])
+            types.append(self.__edge_types.index(data["attr"]))
 
         return edges, types
 
@@ -738,7 +742,7 @@ class Graph(object):
         for node1, node2, data in self.G.edges(data=True):
             source.append(nodes_keys.index(node1))
             target.append(nodes_keys.index(node2))
-            type.append(data["attr"])
+            type.append(self.__edge_types.index(data["attr"]))
 
         return pd.DataFrame({'source': source, 'target': target, 'type': type})
 
@@ -758,7 +762,7 @@ class Graph(object):
 
         return edges
 
-    def get_edge_list_embeddings(self):
+    def get_edge_list_type_embeddings(self):
         """Return the edges and embeddings."""
         nodes_keys = list(self.__get_node_attr_dict().keys())
 
@@ -838,7 +842,7 @@ class Graph(object):
         return edges
 
     def get_edge_list_word2vec_embeddings(self,
-                                          graph_type='llvm',
+                                          graph_type='ir',
                                           skip_gram=False):
         """Return the nodes embeddings (word2vec)."""
         if graph_type == 'asm':
@@ -849,7 +853,7 @@ class Graph(object):
             if not Graph.__w2v_model_ast_graph:
                 self.__load_word2vec_model_ast_graph(skip_gram)
             model = Graph.__w2v_model_ast_graph
-        elif graph_type == 'llvm':
+        elif graph_type == 'ir':
             if not Graph.__w2v_model_ir_graph:
                 self.__load_word2vec_model_ir_graph(skip_gram)
             model = Graph.__w2v_model_ir_graph
@@ -893,15 +897,15 @@ class Graph(object):
                 emb[edge_type] if edge_type in emb else np.array([1.75])
             )
 
-        return np.array(edges)
+        return edges
 
-    def get_edge_inst2vec_embeddings(self):
+    def get_edges_inst2vec_embeddings(self):
         """Return the edges and inst2vec embeddings."""
         if not Graph.__inst2vec_dictionary:
             self.__load_ir2vec_data()
 
         edges = []
-        for node1, node2, data in self.G.edges(data=True):
+        for _, _, data in self.G.edges(data=True):
             edge_type = '!E{}'.format(data["attr"].upper())
             edges.append(
                 Graph.__inst2vec_embeddings[
@@ -913,15 +917,15 @@ class Graph(object):
                      ]
             )
 
-        return np.array(edges)
+        return edges
 
-    def get_edge_ir2vec_embeddings(self):
+    def get_edges_ir2vec_embeddings(self):
         """Return the edges and ir2vec embeddings."""
         if not Graph.__ir2vec_dictionary:
             self.__load_ir2vec_data()
 
         edges = []
-        for node1, node2, data in self.G.edges(data=True):
+        for _, _, data in self.G.edges(data=True):
             edge_type = '!E{}'.format(data["attr"].upper())
             edges.append(
                 Graph.__ir2vec_embeddings[
@@ -933,10 +937,10 @@ class Graph(object):
                      ]
             )
 
-        return np.array(edges)
+        return edges
 
-    def get_edge_word2vec_embeddings(self,
-                                     graph_type='llvm',
+    def get_edges_word2vec_embeddings(self,
+                                     graph_type='ir',
                                      skip_gram=False):
         """Return the nodes embeddings (word2vec)."""
         if graph_type == 'asm':
@@ -947,7 +951,7 @@ class Graph(object):
             if not Graph.__w2v_model_ast_graph:
                 self.__load_word2vec_model_ast_graph(skip_gram)
             model = Graph.__w2v_model_ast_graph
-        elif graph_type == 'llvm':
+        elif graph_type == 'ir':
             if not Graph.__w2v_model_ir_graph:
                 self.__load_word2vec_model_ir_graph(skip_gram)
             model = Graph.__w2v_model_ir_graph
@@ -956,7 +960,7 @@ class Graph(object):
             sys.exit(1)
 
         edges = []
-        for node1, node2, data in self.G.edges(data=True):
+        for _, _, data in self.G.edges(data=True):
             edge_type = 'e{}'.format(data["attr"].lower())
             edges.append(
                     model.wv[edge_type]
