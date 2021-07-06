@@ -50,9 +50,8 @@ def extract_graph_data(graph, graph_type):
         nodes['ir2v'] = graph.get_nodes_ir2vec_embeddings()
 
     edges = graph.get_edges_dataFrame()
-    adj = graph.get_adjacency_matrix()
 
-    return adj, edges, nodes
+    return edges, nodes
 
 
 def execute(argv):
@@ -141,11 +140,11 @@ def execute(argv):
                 # Build the graph.
                 graph = builder.info_to_representation(extractionInfo,
                                                        visitors[FLAGS.graph])
-            adj, edges, nodes = extract_graph_data(graph, FLAGS.graph)
+            edges, nodes = extract_graph_data(graph, FLAGS.graph)
 
             filename = source.replace(folder, output_dir)
             filename = filename[:-3]
-            np.savez_compressed(filename, adj=adj, edges=edges, nodes=nodes)
+            np.savez_compressed(filename, edges=edges, nodes=nodes)
 
 
 # Execute
