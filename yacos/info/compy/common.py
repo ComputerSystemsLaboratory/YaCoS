@@ -471,55 +471,6 @@ class Graph(object):
         return collections.OrderedDict(self.G.nodes(data="attr",
                                                     default="N/A"))
 
-    def __opcodes2bag_of_words(self, opcodes, graph_type, compact):
-        """Tranform dictionary into a vector."""
-        if graph_type == 'ast':
-            if not self.__boo_ast:
-                self.__load_boo_ast()
-            boo = self.__boo_ast
-        elif graph_type == 'asm':
-            if not self.__boo_asm:
-                self.__load_boo_asm()
-            boo = self.__boo_asm
-        elif graph_type == 'ir':
-            if not self.__boo_ir:
-                self.__load_boo_ir()
-            boo = self.__boo_ir
-        else:
-            lg.error('Boo type does not exist.')
-            sys.exit(1)
-
-        """
-        classes:
-          terminator: 0
-          unary: 1
-          binary: 2
-          ...
-        instructions:
-          ret:
-            class: 0
-            pos: 0
-          ...
-          fneg:
-            class: 1
-            pos: 11
-          ...
-        """
-
-        if compact:
-            vector = [0 for _ in range(len(boo['classes']))]
-        else:
-            vector = [0 for _ in range(len(boo['instructions']))]
-
-        if compact:
-            for opcode in opcodes:
-                vector[boo['instructions'][opcode]['class']] += 1
-        else:
-            for opcode in opcodes:
-                vector[boo['instructions'][opcode]['pos']] += 1
-
-        return vector
-
     def get_node_str_list(self):
         """Return the node attributes."""
         node_strs = list(self.__get_node_attr_dict().values())
@@ -645,15 +596,87 @@ class Graph(object):
                                           graph_type='ir',
                                           compact=False):
         """Return the nodes embeddings (bag of words)."""
+        if graph_type == 'ast':
+            if not self.__boo_ast:
+                self.__load_boo_ast()
+            boo = self.__boo_ast
+        elif graph_type == 'asm':
+            if not self.__boo_asm:
+                self.__load_boo_asm()
+            boo = self.__boo_asm
+        elif graph_type == 'ir':
+            if not self.__boo_ir:
+                self.__load_boo_ir()
+            boo = self.__boo_ir
+        else:
+            lg.error('Boo type does not exist.')
+            sys.exit(1)
+
+        """
+        bag_of_words.pickle
+
+        classes:
+          terminator: 0
+          unary: 1
+          binary: 2
+          ...
+        instructions:
+          ret:
+            class: 0
+            pos: 0
+          ...
+          fneg:
+            class: 1
+            pos: 11
+          ...
+        """
         nodes_keys = list(self.__get_node_attr_dict().keys())
+
         nodes = []
         for (n, data) in self.G.nodes(data=True):
-            if 'opcodes' not in data:
-                continue
-            nodes.append((nodes_keys.index(n),
-                          self.__opcodes2bag_of_words(data['opcodes'],
-                                                      graph_type,
-                                                      compact)))
+            if compact:
+                embeddings = [0 for _ in range(len(boo['classes']))]
+            else:
+                embeddings = [0 for _ in range(len(boo['instructions']))]
+
+            if "value" in data:
+                if compact:
+                    embeddings[boo['instructions']['immediate']['class']] += 1
+                else:
+                    embeddings[boo['instructions']['immediate']['pos']] += 1
+            elif "opcodes" in data:
+                if compact:
+                    for opcode in data['opcodes']:
+                        embeddings[boo['instructions'][opcode]['class']] += 1
+                else:
+                    for opcode in data['opcodes']:
+                        embeddings[boo['instructions'][opcode]['pos']] += 1
+            elif "attr" in data:
+                if type(data["attr"]) is tuple:
+                    label = "\n".join(data["attr"])
+                else:
+                    label = data["attr"]
+                if label == 'bb':
+                    if compact:
+                        embeddings[boo['instructions']['bb']['class']] += 1
+                    else:
+                        embeddings[boo['instructions']['bb']['pos']] += 1
+                elif label == 'function':
+                    if compact:
+                        embeddings[boo['instructions']['magic']['class']] += 1
+                    else:
+                        embeddings[boo['instructions']['magic']['pos']] += 1
+                else:
+                    if compact:
+                        embeddings[
+                                    boo['instructions']['identifier']['class']
+                                  ] += 1
+                    else:
+                        embeddings[
+                                    boo['instructions']['identifier']['pos']
+                                  ] += 1
+            nodes.append((nodes_keys.index(n), embeddings))
+
         return nodes
 
     def get_nodes_word2vec_embeddings(self,
@@ -890,6 +913,26 @@ class Graph(object):
 
         return edges
 
+    def get_edge_list_bag_of_words_embeddings(self):
+        """Return the nodes embeddings (bag of words)."""
+        nodes_keys = list(self.__get_node_attr_dict().keys())
+
+        edges = []
+        for node1, node2, data in self.G.edges(data=True):
+            edge_type = self.__edge_types.index(data["attr"])
+            emb = [0 for _ in range(0, 7)]
+            emb[edge_type] = 1
+
+            edges.append(
+                (
+                    nodes_keys.index(node1),
+                    emb,
+                    nodes_keys.index(node2)
+                )
+            )
+
+        return edges
+
     def get_edges_embeddings(self):
         """Return the edges embeedings."""
         emb = {
@@ -979,6 +1022,18 @@ class Graph(object):
                     if edge_type in model.wv.vocab
                     else model.wv['eunk']
             )
+
+        return edges
+
+    def get_edges_bag_of_words_embeddings(self):
+        """Return the nodes embeddings (bag of words)."""
+        edges = []
+        for _, _, data in self.G.edges(data=True):
+            edge_type = self.__edge_types.index(data["attr"])
+            emb = [0 for _ in range(0, 7)]
+            emb[edge_type] = 1
+
+            edges.append(emb)
 
         return edges
 
