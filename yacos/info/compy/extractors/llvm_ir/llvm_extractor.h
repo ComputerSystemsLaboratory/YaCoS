@@ -276,6 +276,57 @@ struct ExtractionInfo : IVisitee {
 
 }  // namespace insts
 
+namespace histogram {
+struct FunctionInfo;
+using FunctionInfoPtr = std::shared_ptr<FunctionInfo>;
+
+struct ExtractionInfo;
+using ExtractionInfoPtr = std::shared_ptr<ExtractionInfo>;
+
+struct FunctionInfo : IVisitee {
+  std::string name;
+  std::vector<std::string> signature;
+  std::map<std::string, float> instructions;
+
+  void accept(IVisitor* v) override { v->visit(this); }
+};
+
+struct ExtractionInfo : IVisitee {
+  std::vector<FunctionInfoPtr> functionInfos;
+  void accept(IVisitor* v) override {
+    v->visit(this);
+    for (const auto &it : functionInfos) it->accept(v);
+  }
+};
+
+}  // namespace histogram
+
+
+namespace opcodes {
+struct FunctionInfo;
+using FunctionInfoPtr = std::shared_ptr<FunctionInfo>;
+
+struct ExtractionInfo;
+using ExtractionInfoPtr = std::shared_ptr<ExtractionInfo>;
+
+struct FunctionInfo : IVisitee {
+  std::string name;
+  std::vector<std::string> signature;
+  std::vector<std::string> opcodes;
+
+  void accept(IVisitor* v) override { v->visit(this); }
+};
+
+struct ExtractionInfo : IVisitee {
+  std::vector<FunctionInfoPtr> functionInfos;
+  void accept(IVisitor* v) override {
+    v->visit(this);
+    for (const auto &it : functionInfos) it->accept(v);
+  }
+};
+
+}  // namespace opcodes
+
 namespace wlcost {
 struct FunctionInfo;
 using FunctionInfoPtr = std::shared_ptr<FunctionInfo>;
@@ -367,6 +418,10 @@ class LLVMIRExtractor {
   names::ExtractionInfoPtr NamesFromIR(std::string filename);
   insts::ExtractionInfoPtr InstsFromSource(std::string filename);
   insts::ExtractionInfoPtr InstsFromIR(std::string filename);
+  histogram::ExtractionInfoPtr HistogramFromSource(std::string filename);
+  histogram::ExtractionInfoPtr HistogramFromIR(std::string filename);
+  opcodes::ExtractionInfoPtr OpcodesFromSource(std::string filename);
+  opcodes::ExtractionInfoPtr OpcodesFromIR(std::string filename);
   wlcost::ExtractionInfoPtr WLCostFromSource(std::string filename);
   wlcost::ExtractionInfoPtr WLCostFromIR(std::string filename);
   ir2vec::ExtractionInfoPtr IR2VecFromSource(std::string filename);

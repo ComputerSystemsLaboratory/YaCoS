@@ -18,6 +18,7 @@ import os
 import sys
 import numpy as np
 import pandas as pd
+import random as rd
 import collections
 
 import networkx as nx
@@ -344,9 +345,10 @@ class Graph(object):
     __ir2v_dir = 'yacos/data/ir2vec'
     __boo_dir = 'yacos/data/bag_of_words'
 
-    def __init__(self, graph, node_types, edge_types):
+    def __init__(self, graph, node_attrs, node_types, edge_types):
         """Initialize a Graph representation."""
         self.G = graph
+        self.__node_attr = node_attrs
         self.__node_types = node_types
         self.__edge_types = edge_types
 
@@ -471,6 +473,11 @@ class Graph(object):
         return collections.OrderedDict(self.G.nodes(data="attr",
                                                     default="N/A"))
 
+    def __opcode_embeddings(self, opcode):
+        """Return the opcode embeddings."""
+        rd.seed(opcode)
+        return rd.random()
+
     def get_node_str_list(self):
         """Return the node attributes."""
         node_strs = list(self.__get_node_attr_dict().values())
@@ -479,7 +486,7 @@ class Graph(object):
     def get_node_list(self):
         """Return the nodes."""
         node_strs = list(self.__get_node_attr_dict().values())
-        node_ints = [self.__node_types.index(n_str) for n_str in node_strs]
+        node_ints = [self.__node_attrs.index(n_str) for n_str in node_strs]
         return node_ints
 
     def get_nodes_inst2vec_embeddings(self):
@@ -490,15 +497,19 @@ class Graph(object):
 
         nodes = []
         for (n, data) in self.G.nodes(data=True):
-            if "value" in data:
+            type = data["type"]
+            if type == "root":
                 embeddings = self.__inst2vec_embeddings[
-                                    self.__inst2vec_dictionary['!IMMEDIATE']
-                                    ]
-                nodes.append((nodes_keys.index(n), embeddings))
-            elif "insts" in data:
+                                self.__inst2vec_dictionary['!MAGIC']
+                             ]
+            elif type == "cdfgplusbb":
+                embeddings = self.__inst2vec_embeddings[
+                                self.__inst2vec_dictionary['!BB']
+                             ]
+            elif type == "insn" or type == "bb":
                 emb = []
                 for inst in data['insts']:
-                    if type(inst) is tuple:
+                    if isinstance(inst, tuple):
                         inst_ = "\n".join(inst)
                     else:
                         inst_ = inst
@@ -514,26 +525,22 @@ class Graph(object):
                         index = self.__inst2vec_dictionary['!UNK']
                         embeddings = self.__inst2vec_embeddings[index]
                     emb.append(embeddings)
-                nodes.append((nodes_keys.index(n),
-                              [sum(x) for x in zip(*emb)]))
-            elif "attr" in data:
-                if type(data["attr"]) is tuple:
-                    label = "\n".join(data["attr"])
-                else:
-                    label = data["attr"]
-                if label == 'bb':
-                    embeddings = self.__inst2vec_embeddings[
-                                    self.__inst2vec_dictionary['!BB']
-                                    ]
-                elif label == 'function':
-                    embeddings = self.__inst2vec_embeddings[
-                                    self.__inst2vec_dictionary['!MAGIC']
-                                    ]
-                else:
-                    embeddings = self.__inst2vec_embeddings[
-                                    self.__inst2vec_dictionary['!IDENTIFIER']
-                                    ]
-                nodes.append((nodes_keys.index(n), embeddings))
+                embeddings = [sum(x) for x in zip(*emb)]
+            elif type == "id" or type == "data":
+                embeddings = self.__inst2vec_embeddings[
+                                self.__inst2vec_dictionary['!IDENTIFIER']
+                             ]
+            elif type == "imm":
+                embeddings = self.__inst2vec_embeddings[
+                                    self.__inst2vec_dictionary['!IMMEDIATE']
+                             ]
+            else:
+                lg.error("Node type ({}) does not exist.".format(type))
+                sys.exit(1)
+
+            nodes.append((nodes_keys.index(n),
+                          type,  # self.__node_types.index(type),
+                          np.array(embeddings)))
 
         return nodes
 
@@ -545,15 +552,19 @@ class Graph(object):
 
         nodes = []
         for (n, data) in self.G.nodes(data=True):
-            if "value" in data:
+            type = data["type"]
+            if type == "root":
                 embeddings = self.__ir2vec_embeddings[
-                                    self.__ir2vec_dictionary['!IMMEDIATE']
-                                    ]
-                nodes.append((nodes_keys.index(n), embeddings))
-            elif "insts" in data:
+                                self.__ir2vec_dictionary['!MAGIC']
+                             ]
+            elif type == "cdfgplusbb":
+                embeddings = self.__ir2vec_embeddings[
+                                self.__ir2vec_dictionary['!BB']
+                             ]
+            elif type == "insn" or type == "bb":
                 emb = []
                 for inst in data['insts']:
-                    if type(inst) is tuple:
+                    if isinstance(inst, tuple):
                         inst_ = "\n".join(inst)
                     else:
                         inst_ = inst
@@ -564,31 +575,27 @@ class Graph(object):
                     if preprocessed in self.__ir2vec_dictionary:
                         embeddings = self.__ir2vec_embeddings[
                                     self.__ir2vec_dictionary[preprocessed]
-                                    ]
+                                     ]
                     else:
                         index = self.__ir2vec_dictionary['!UNK']
                         embeddings = self.__ir2vec_embeddings[index]
                     emb.append(embeddings)
-                nodes.append((nodes_keys.index(n),
-                              [sum(x) for x in zip(*emb)]))
-            elif "attr" in data:
-                if type(data["attr"]) is tuple:
-                    label = "\n".join(data["attr"])
-                else:
-                    label = data["attr"]
-                if label == 'bb':
-                    embeddings = self.__ir2vec_embeddings[
-                                    self.__ir2vec_dictionary['!BB']
-                                    ]
-                elif label == 'function':
-                    embeddings = self.__ir2vec_embeddings[
-                                    self.__ir2vec_dictionary['!MAGIC']
-                                    ]
-                else:
-                    embeddings = self.__ir2vec_embeddings[
-                                    self.__ir2vec_dictionary['!IDENTIFIER']
-                                    ]
-                nodes.append((nodes_keys.index(n), embeddings))
+                embeddings = [sum(x) for x in zip(*emb)]
+            elif type == "id" or type == "data":
+                embeddings = self.__ir2vec_embeddings[
+                                self.__ir2vec_dictionary['!IDENTIFIER']
+                             ]
+            elif type == "imm":
+                embeddings = self.__ir2vec_embeddings[
+                                    self.__ir2vec_dictionary['!IMMEDIATE']
+                             ]
+            else:
+                lg.error("Node type ({}) does not exist.".format(type))
+                sys.exit(1)
+
+            nodes.append((nodes_keys.index(n),
+                          type,  # self.__node_types.index(type),
+                          np.array(embeddings)))
 
         return nodes
 
@@ -639,43 +646,45 @@ class Graph(object):
             else:
                 embeddings = [0 for _ in range(len(boo['instructions']))]
 
-            if "value" in data:
+            type = data["type"]
+            if type == "root":
                 if compact:
-                    embeddings[boo['instructions']['immediate']['class']] += 1
+                    embeddings[boo['instructions']['magic']['class']] += 1
                 else:
-                    embeddings[boo['instructions']['immediate']['pos']] += 1
-            elif "opcodes" in data:
+                    embeddings[boo['instructions']['magic']['pos']] += 1
+            elif type == "cdfgplusbb":
+                if compact:
+                    embeddings[boo['instructions']['bb']['class']] += 1
+                else:
+                    embeddings[boo['instructions']['bb']['pos']] += 1
+            elif type == "insn" or type == "bb":
                 if compact:
                     for opcode in data['opcodes']:
                         embeddings[boo['instructions'][opcode]['class']] += 1
                 else:
                     for opcode in data['opcodes']:
                         embeddings[boo['instructions'][opcode]['pos']] += 1
-            elif "attr" in data:
-                if type(data["attr"]) is tuple:
-                    label = "\n".join(data["attr"])
+            elif type == "id" or type == "data":
+                if compact:
+                    embeddings[
+                                boo['instructions']['identifier']['class']
+                              ] += 1
                 else:
-                    label = data["attr"]
-                if label == 'bb':
-                    if compact:
-                        embeddings[boo['instructions']['bb']['class']] += 1
-                    else:
-                        embeddings[boo['instructions']['bb']['pos']] += 1
-                elif label == 'function':
-                    if compact:
-                        embeddings[boo['instructions']['magic']['class']] += 1
-                    else:
-                        embeddings[boo['instructions']['magic']['pos']] += 1
+                    embeddings[
+                                boo['instructions']['identifier']['pos']
+                              ] += 1
+            elif type == "imm":
+                if compact:
+                    embeddings[boo['instructions']['immediate']['class']] += 1
                 else:
-                    if compact:
-                        embeddings[
-                                    boo['instructions']['identifier']['class']
-                                  ] += 1
-                    else:
-                        embeddings[
-                                    boo['instructions']['identifier']['pos']
-                                  ] += 1
-            nodes.append((nodes_keys.index(n), embeddings))
+                    embeddings[boo['instructions']['immediate']['pos']] += 1
+            else:
+                lg.error("Node type ({}) does not exist.".format(type))
+                sys.exit(1)
+
+            nodes.append((nodes_keys.index(n),
+                          type,  # self.__node_types.index(type),
+                          np.array(embeddings)))
 
         return nodes
 
@@ -705,12 +714,15 @@ class Graph(object):
 
         nodes = []
         for (n, data) in self.G.nodes(data=True):
-            emb = []
-            if 'value' in data:
-                nodes.append((nodes_keys.index(n), model.wv['immediate']))
-            elif 'opcodes' in data:
+            type = data["type"]
+            if type == "root":
+                embeddings = model.wv['magic']
+            elif type == "cdfgplusbb":
+                embeddings = model.wv['bb']
+            elif type == "insn" or type == "bb":
+                emb = []
                 for opcode in data['opcodes']:
-                    if type(opcode) is tuple:
+                    if isinstance(opcode, tuple):
                         label = "\n".join(opcode)
                     else:
                         label = opcode
@@ -718,37 +730,81 @@ class Graph(object):
                         emb.append(model.wv[label.lower()])
                     else:
                         emb.append(unknown)
-                nodes.append((nodes_keys.index(n),
-                              [sum(x) for x in zip(*emb)]))
-            elif "attr" in data:
-                if type(data["attr"]) is tuple:
-                    label = "\n".join(data["attr"])
-                else:
-                    label = data["attr"]
-                if label == 'bb':
-                    embeddings = model.wv['bb']
-                elif label == 'function':
-                    embeddings = model.wv['magic']
-                else:
-                    embeddings = model.wv['identifier']
-                nodes.append((nodes_keys.index(n), embeddings))
+                embeddings = [sum(x) for x in zip(*emb)]
+            elif type == "id" or type == "data":
+                embeddings = model.wv['identifier']
+            elif type == "imm":
+                embeddings = model.wv['immediate']
+            else:
+                lg.error("Node type ({}) does not exist.".format(type))
+                sys.exit(1)
+
+            nodes.append((nodes_keys.index(n),
+                          type,  # self.__node_types.index(type),
+                          np.array(embeddings)))
+
         return nodes
 
-    def get_edge_str_list(self):
+    def get_nodes_opcode_embeddings(self):
+        """Return the nodes embeddings (word2vec)."""
+        nodes_keys = list(self.__get_node_attr_dict().keys())
+
+        nodes = []
+        for (n, data) in self.G.nodes(data=True):
+            type = data["type"]
+            if type == "root":
+                embeddings = self.__opcode_embeddings('magic')
+            elif type == "cdfgplusbb":
+                embeddings = self.__opcode_embeddings('bb')
+            elif type == "insn" or type == "bb":
+                embeddings = 0
+                for opcode in data['opcodes']:
+                    embeddings += self.__opcode_embeddings(opcode)
+            elif type == "id" or type == "data":
+                embeddings = self.__opcode_embeddings('identifier')
+            elif type == "imm":
+                embeddings = self.__opcode_embeddings('immediate')
+            else:
+                lg.error("Node type ({}) does not exist.".format(type))
+                sys.exit(1)
+
+            nodes.append((nodes_keys.index(n),
+                          type,  # self.__node_types.index(type),
+                          np.array(embeddings)))
+
+        return nodes
+
+    def get_edges_dataFrame(self):
         """Return the edges."""
         nodes_keys = list(self.__get_node_attr_dict().keys())
 
-        edges = []
+        source = []
+        target = []
+        type_ = []
         for node1, node2, data in self.G.edges(data=True):
-            edges.append(
-                (
-                    nodes_keys.index(node1),
-                    data["attr"],
-                    nodes_keys.index(node2)
-                )
-            )
+            source.append(nodes_keys.index(node1))
+            target.append(nodes_keys.index(node2))
+            type_.append(self.__edge_types.index(data["attr"]))
 
-        return edges
+        return pd.DataFrame({'source': source,
+                             'target': target,
+                             'type': type_})
+
+    def get_edges_str_dataFrame(self):
+        """Return the edges."""
+        nodes_keys = list(self.__get_node_attr_dict().keys())
+
+        source = []
+        target = []
+        type_ = []
+        for node1, node2, data in self.G.edges(data=True):
+            source.append(nodes_keys.index(node1))
+            target.append(nodes_keys.index(node2))
+            type_.append(data["attr"])
+
+        return pd.DataFrame({'source': source,
+                             'target': target,
+                             'type': type_})
 
     def get_edges_and_types(self):
         """Return the edges."""
@@ -767,19 +823,22 @@ class Graph(object):
 
         return edges, types
 
-    def get_edges_dataFrame(self):
+    def get_edges_and_types_str(self):
         """Return the edges."""
         nodes_keys = list(self.__get_node_attr_dict().keys())
 
-        source = []
-        target = []
-        type = []
+        edges = []
+        types = []
         for node1, node2, data in self.G.edges(data=True):
-            source.append(nodes_keys.index(node1))
-            target.append(nodes_keys.index(node2))
-            type.append(self.__edge_types.index(data["attr"]))
+            edges.append(
+                (
+                    nodes_keys.index(node1),
+                    nodes_keys.index(node2)
+                )
+            )
+            types.append(data["attr"])
 
-        return pd.DataFrame({'source': source, 'target': target, 'type': type})
+        return edges, types
 
     def get_edge_list(self):
         """Return the edges."""
@@ -791,6 +850,22 @@ class Graph(object):
                 (
                     nodes_keys.index(node1),
                     self.__edge_types.index(data["attr"]),
+                    nodes_keys.index(node2)
+                )
+            )
+
+        return edges
+
+    def get_edge_str_list(self):
+        """Return the edges."""
+        nodes_keys = list(self.__get_node_attr_dict().keys())
+
+        edges = []
+        for node1, node2, data in self.G.edges(data=True):
+            edges.append(
+                (
+                    nodes_keys.index(node1),
+                    data["attr"],
                     nodes_keys.index(node2)
                 )
             )
@@ -1068,7 +1143,7 @@ class Graph(object):
             G.nodes[n]["style"] = "filled"
 
             if "attr" in data:
-                if type(data["attr"]) is tuple:
+                if isinstance(data["attr"], tuple):
                     label = "\n".join(data["attr"])
                 else:
                     label = data["attr"]
@@ -1128,123 +1203,3 @@ class Graph(object):
 
         graphviz_graph.layout("dot")
         return graphviz_graph.draw(path)
-
-    def networkx(self):
-        """Return a Networkx representation."""
-        # We create a new graph object because attr modifications.
-        G = nx.MultiDiGraph()
-
-        node_idx = 0
-        nodes = {}
-
-        # Add node labels.
-        for (n, data) in self.G.nodes(data=True):
-            if n not in nodes:
-                nodes[n] = node_idx
-                node_idx += 1
-            if "attr" in data:
-                if type(data["attr"]) is tuple:
-                    label = "\n".join(data["attr"])
-                else:
-                    label = data["attr"]
-                G.add_node(nodes[n], attr=label)
-            if "root" in data:
-                G.add_node(nodes[n], root="root")
-            if "inst" in data:
-                if type(data["inst"]) is tuple:
-                    inst = "\n".join(data["inst"])
-                else:
-                    inst = data["inst"]
-                if G.has_node(nodes[n]):
-                    G.nodes[nodes[n]]['instruction'] = inst
-                else:
-                    G.add_node(nodes[n], instruction=inst)
-            if "value" in data:
-                if type(data["value"]) is tuple:
-                    value = "\n".join(data["value"])
-                else:
-                    value = data["value"]
-                if G.has_node(nodes[n]):
-                    G.nodes[nodes[n]]['value'] = value
-                else:
-                    G.add_node(nodes[n], value=value)
-
-        # Add edge type.
-        edge_types = {
-            "ast": 0,
-            "cfg": 1,
-            "data": 2,
-            "mem": 3,
-            "call": 4,
-            "in": 5
-        }
-
-        for u, v, _, data in self.G.edges(keys=True, data=True):
-            G.add_edge(nodes[u], nodes[v], label=edge_types[data["attr"]]
-                       if data["attr"] in edge_types else 6)
-
-        return G
-
-    def networkx_inst2vec(self):
-        """Return a Networkx representation using embeddings (int2vec)."""
-        if not self.__inst2vec_dictionary:
-            self.__load_inst2vec_data()
-
-        # We create a new graph object because attr modifications.
-        G = nx.MultiDiGraph()
-
-        augmented = {'!UNK': self.__inst2vec_embeddings[8564],
-                     '!IDENTIFIER': self.__inst2vec_embeddings[8565],
-                     '!IMMEDIATE': self.__inst2vec_embeddings[8566],
-                     '!MAGIC': self.__inst2vec_embeddings[8567],
-                     '!BB': self.__inst2vec_embeddings[8568]}
-        node_idx = 0
-        nodes = {}
-
-        # Add node labels.
-        for (n, data) in self.G.nodes(data=True):
-            if n not in nodes:
-                nodes[n] = node_idx
-                node_idx += 1
-            if "value" in data:
-                G.add_node(nodes[n], embeddings=augmented['!IMMEDIATE'])
-            elif "inst" in data:
-                if type(data["inst"]) is tuple:
-                    inst = "\n".join(data["inst"])
-                else:
-                    inst = data["inst"]
-                preprocessed, _ = i2v_pre.preprocess([[inst]])
-                preprocessed = i2v_pre.PreprocessStatement(preprocessed[0][0])
-                if preprocessed in self.__inst2vec_dictionary:
-                    embeddings = self.__inst2vec_dictionary[preprocessed]
-                    embeddings = self.__inst2vec_embeddings[embeddings]
-                else:
-                    embeddings = augmented['!UNK']
-                G.add_node(nodes[n], embeddings=embeddings)
-            elif "attr" in data:
-                if type(data["attr"]) is tuple:
-                    label = "\n".join(data["attr"])
-                else:
-                    label = data["attr"]
-                if label == 'bb':
-                    G.add_node(nodes[n], embeddings=augmented['!BB'])
-                elif label == 'function':
-                    G.add_node(nodes[n], embeddings=augmented['!MAGIC'])
-                else:
-                    G.add_node(nodes[n], embeddings=augmented['!IDENTIFIER'])
-
-        # Add edge colors.
-        edge_types = {
-            "ast": np.array([0.0]),  # 0
-            "cfg": np.array([0.25]),  # 1
-            "data": np.array([0.5]),  # 2
-            "mem": np.array([0.75]),  # 3
-            "call": np.array([1.0]),  # 4
-            "in": np.array([1.25])  # 5
-        }
-
-        for u, v, _, data in self.G.edges(keys=True, data=True):
-            G.add_edge(nodes[u], nodes[v], embeddings=edge_types[data["attr"]]
-                       if data["attr"] in edge_types else np.array([1.50]))
-
-        return G

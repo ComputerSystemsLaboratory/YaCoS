@@ -8,6 +8,8 @@ add_library(llvm_extractor
 	llvm_names_pass.cc
   llvm_ir2vec_pass.cc
 	llvm_insts_pass.cc
+  llvm_histogram_pass.cc
+    llvm_opcodes_pass.cc
         llvm_wl_cost_pass.cc
 	llvm_wl_cost_funcinfo.cc
         )

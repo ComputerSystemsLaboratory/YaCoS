@@ -33,6 +33,8 @@ namespace ls = compy::llvm::seq;
 namespace ln = compy::llvm::names;
 namespace lm = compy::llvm::msf;
 namespace li = compy::llvm::insts;
+namespace lh = compy::llvm::histogram;
+namespace lo = compy::llvm::opcodes;
 namespace lwlc = compy::llvm::wlcost;
 namespace li2v = compy::llvm::ir2vec;
 
@@ -224,6 +226,10 @@ void registerLLVMExtractor(py::module m_parent) {
   llvmExtractor.def("NamesFromIR", &LE::NamesFromIR);
   llvmExtractor.def("InstsFromSource", &LE::InstsFromSource);
   llvmExtractor.def("InstsFromIR", &LE::InstsFromIR);
+  llvmExtractor.def("OpcodesFromSource", &LE::OpcodesFromSource);
+  llvmExtractor.def("OpcodesFromIR", &LE::OpcodesFromIR);
+  llvmExtractor.def("HistogramFromSource", &LE::HistogramFromSource);
+  llvmExtractor.def("HistogramFromIR", &LE::HistogramFromIR);
   llvmExtractor.def("WLCostFromSource", &LE::WLCostFromSource);
   llvmExtractor.def("WLCostFromIR", &LE::WLCostFromIR);
   llvmExtractor.def("IR2VecFromSource", &LE::IR2VecFromSource);
@@ -367,6 +373,36 @@ void registerLLVMExtractor(py::module m_parent) {
       .def_readonly("name", &li::FunctionInfo::name)
       .def_readonly("signature", &li::FunctionInfo::signature)
       .def_readonly("instructions", &li::FunctionInfo::instructions);
+
+  // LLVM Type of Instructions extractor (Histogram)
+  py::module m_histogram = m.def_submodule("histogram");
+
+  py::class_<lh::ExtractionInfo, std::shared_ptr<lh::ExtractionInfo>>(
+      m_histogram, "ExtractionInfo")
+      .def("accept", &lh::ExtractionInfo::accept)
+      .def_readonly("functionInfos", &lh::ExtractionInfo::functionInfos);
+
+  py::class_<lh::FunctionInfo, std::shared_ptr<lh::FunctionInfo>>(
+      m_histogram, "FunctionInfo")
+      .def("accept", &lh::FunctionInfo::accept)
+      .def_readonly("name", &lh::FunctionInfo::name)
+      .def_readonly("signature", &lh::FunctionInfo::signature)
+      .def_readonly("instructions", &lh::FunctionInfo::instructions);
+
+  // LLVM opcodes extractor
+  py::module m_opcodes = m.def_submodule("opcodes");
+
+  py::class_<lo::ExtractionInfo, std::shared_ptr<lo::ExtractionInfo>>(
+      m_opcodes, "ExtractionInfo")
+      .def("accept", &lo::ExtractionInfo::accept)
+      .def_readonly("functionInfos", &lo::ExtractionInfo::functionInfos);
+
+  py::class_<lo::FunctionInfo, std::shared_ptr<lo::FunctionInfo>>(
+      m_opcodes, "FunctionInfo")
+      .def("accept", &lo::FunctionInfo::accept)
+      .def_readonly("name", &lo::FunctionInfo::name)
+      .def_readonly("signature", &lo::FunctionInfo::signature)
+      .def_readonly("opcodes", &lo::FunctionInfo::opcodes);
 
   // LLVM Wu-Larus Cost extractor
   py::module m_wlcost = m.def_submodule("wlcost");

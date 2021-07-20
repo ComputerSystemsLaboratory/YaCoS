@@ -64,6 +64,7 @@ class LLVMCFGVisitor(Visitor):
         """Initialize a CFG Visitor."""
         Visitor.__init__(self)
         self.edge_types = ["cfg"]
+        self.node_types = ["insn"]
         self.G = nx.MultiDiGraph()
         self.root = False
 
@@ -94,12 +95,15 @@ class LLVMCFGVisitor(Visitor):
                                 attr=(v.opcode),
                                 opcodes=[(v.opcode)],
                                 insts=[(v.instStr)],
+                                type="insn",
                                 root="root")
                 self.root = True
             else:
-                self.G.add_node(v, attr=(v.opcode),
+                self.G.add_node(v,
+                                attr=(v.opcode),
                                 opcodes=[(v.opcode)],
-                                insts=[(v.instStr)])
+                                insts=[(v.instStr)],
+                                type="insn")
 
 
 class LLVMCFGCompactVisitor(Visitor):
@@ -110,6 +114,7 @@ class LLVMCFGCompactVisitor(Visitor):
         """Initialize a CFG Visitor."""
         Visitor.__init__(self)
         self.edge_types = ["cfg"]
+        self.node_types = ["bb"]
         self.G = nx.MultiDiGraph()
         self.root = False
 
@@ -120,14 +125,18 @@ class LLVMCFGCompactVisitor(Visitor):
             opcodes = [instr.opcode for instr in v.instructions]
 
             if not self.root:
-                self.G.add_node(v, attr=(v.fullName),
+                self.G.add_node(v,
+                                attr=(v.fullName),
                                 opcodes=opcodes,
                                 insts=insts,
+                                type="bb",
                                 root="root")
                 self.root = True
             else:
-                self.G.add_node(v, attr=(v.fullName),
+                self.G.add_node(v,
+                                attr=(v.fullName),
                                 opcodes=opcodes,
+                                type="bb",
                                 insts=insts)
 
             # CFG edges: Inter-BB
@@ -144,6 +153,7 @@ class LLVMCFGCallVisitor(Visitor):
         """Initialize a CDFGCall Visitor."""
         Visitor.__init__(self)
         self.edge_types = ["cfg", "call"]
+        self.node_types = ["insn", "root"]
         self.G = nx.MultiDiGraph()
         self.functions = {}
         self.calls = {}
@@ -156,9 +166,11 @@ class LLVMCFGCallVisitor(Visitor):
             # Function root node.
             node = find_node(self.G, "function")
             if node:
-                self.G.add_edge(node, v.entryInstruction, attr="call")
+                self.G.add_edge(node,
+                                v.entryInstruction,
+                                attr="call")
             else:
-                self.G.add_node(v, attr="function", root="root")
+                self.G.add_node(v, attr="function", type="root", root="root")
                 self.G.add_edge(v, v.entryInstruction, attr="call")
 
             # Function arg nodes.
@@ -180,9 +192,11 @@ class LLVMCFGCallVisitor(Visitor):
 
         if isinstance(v, llvm.graph.InstructionInfo):
             # Instruction nodes.
-            self.G.add_node(v, attr=(v.opcode),
+            self.G.add_node(v,
+                            attr=(v.opcode),
                             opcodes=[(v.opcode)],
-                            insts=[(v.instStr)])
+                            insts=[(v.instStr)],
+                            type="insn")
 
             # Call edges.
             if v.opcode == "ret":
@@ -215,6 +229,7 @@ class LLVMCFGCallNoRootVisitor(Visitor):
         """Initialize a CDFGCall Visitor."""
         Visitor.__init__(self)
         self.edge_types = ["cfg", "call"]
+        self.node_types = ["insn"]
         self.G = nx.MultiDiGraph()
         self.functions = {}
         self.calls = {}
@@ -243,9 +258,11 @@ class LLVMCFGCallNoRootVisitor(Visitor):
 
         if isinstance(v, llvm.graph.InstructionInfo):
             # Instruction nodes.
-            self.G.add_node(v, attr=(v.opcode),
+            self.G.add_node(v,
+                            attr=(v.opcode),
                             opcodes=[(v.opcode)],
-                            insts=[(v.instStr)])
+                            insts=[(v.instStr)],
+                            type="insn")
 
             # Call edges.
             if v.opcode == "call":
@@ -272,6 +289,7 @@ class LLVMCFGCallCompactVisitor(Visitor):
         """Initialize a CDFGCall Visitor."""
         Visitor.__init__(self)
         self.edge_types = ["cfg", "call"]
+        self.node_types = ["bb", "root"]
         self.G = nx.MultiDiGraph()
         self.functions = {}
         self.calls_bb = {}
@@ -288,7 +306,7 @@ class LLVMCFGCallCompactVisitor(Visitor):
                                 v.entryInstruction.basicBlock,
                                 attr="call")
             else:
-                self.G.add_node(v, attr="function", root="root")
+                self.G.add_node(v, attr="function", type="root", root="root")
                 self.G.add_edge(v, v.entryInstruction.basicBlock, attr="call")
 
             # Function arg nodes.
@@ -299,9 +317,11 @@ class LLVMCFGCallCompactVisitor(Visitor):
             insts = [instr.instStr for instr in v.instructions]
             opcodes = [instr.opcode for instr in v.instructions]
 
-            self.G.add_node(v, attr=(v.fullName),
+            self.G.add_node(v,
+                            attr=(v.fullName),
                             opcodes=opcodes,
-                            insts=insts)
+                            insts=insts,
+                            type="bb")
 
             # CFG edges: Inter-BB
             for succ in v.successors:
@@ -346,6 +366,7 @@ class LLVMCFGCallCompactOneEdgeVisitor(Visitor):
         """Initialize a CDFGCall Visitor."""
         Visitor.__init__(self)
         self.edge_types = ["cfg", "call"]
+        self.node_types = ["bb", "root"]
         self.G = nx.MultiDiGraph()
         self.functions = {}
         self.calls_bb = {}
@@ -362,7 +383,7 @@ class LLVMCFGCallCompactOneEdgeVisitor(Visitor):
                                 v.entryInstruction.basicBlock,
                                 attr="call")
             else:
-                self.G.add_node(v, attr="function", root="root")
+                self.G.add_node(v, attr="function", type="root", root="root")
                 self.G.add_edge(v, v.entryInstruction.basicBlock, attr="call")
 
             # Function arg nodes.
@@ -373,9 +394,11 @@ class LLVMCFGCallCompactOneEdgeVisitor(Visitor):
             insts = [instr.instStr for instr in v.instructions]
             opcodes = [instr.opcode for instr in v.instructions]
 
-            self.G.add_node(v, attr=(v.fullName),
+            self.G.add_node(v,
+                            attr=(v.fullName),
                             opcodes=opcodes,
-                            insts=insts)
+                            insts=insts,
+                            type="bb")
 
             # CFG edges: Inter-BB
             for succ in v.successors:
@@ -432,6 +455,7 @@ class LLVMCFGCallCompactNoRootVisitor(Visitor):
         """Initialize a CDFGCall Visitor."""
         Visitor.__init__(self)
         self.edge_types = ["cfg", "call"]
+        self.node_types = ["bb"]
         self.G = nx.MultiDiGraph()
         self.functions = {}
         self.calls_bb = {}
@@ -449,9 +473,11 @@ class LLVMCFGCallCompactNoRootVisitor(Visitor):
             insts = [instr.instStr for instr in v.instructions]
             opcodes = [instr.opcode for instr in v.instructions]
 
-            self.G.add_node(v, attr=(v.fullName),
+            self.G.add_node(v,
+                            attr=(v.fullName),
                             opcodes=opcodes,
-                            insts=insts)
+                            insts=insts,
+                            type="bb")
 
             # CFG edges: Inter-BB
             for succ in v.successors:
@@ -490,6 +516,7 @@ class LLVMCFGCallCompactOneEdgeNoRootVisitor(Visitor):
         """Initialize a CDFGCall Visitor."""
         Visitor.__init__(self)
         self.edge_types = ["cfg", "call"]
+        self.node_types = ["bb"]
         self.G = nx.MultiDiGraph()
         self.functions = {}
         self.calls_bb = {}
@@ -507,9 +534,11 @@ class LLVMCFGCallCompactOneEdgeNoRootVisitor(Visitor):
             insts = [instr.instStr for instr in v.instructions]
             opcodes = [instr.opcode for instr in v.instructions]
 
-            self.G.add_node(v, attr=(v.fullName),
+            self.G.add_node(v,
+                            attr=(v.fullName),
                             opcodes=opcodes,
-                            insts=insts)
+                            insts=insts,
+                            type="bb")
 
             # CFG edges: Inter-BB
             for succ in v.successors:
@@ -558,6 +587,7 @@ class LLVMCDFGVisitor(Visitor):
         """Initialize a CDFG Visitor."""
         Visitor.__init__(self)
         self.edge_types = ["cfg", "data", "mem"]
+        self.node_types = ["insn", "data"]
         self.G = nx.MultiDiGraph()
         self.root = False
 
@@ -566,7 +596,7 @@ class LLVMCDFGVisitor(Visitor):
         if isinstance(v, llvm.graph.FunctionInfo):
             # Function arg nodes.
             for arg in v.args:
-                self.G.add_node(arg, attr=(arg.type))
+                self.G.add_node(arg, attr=(arg.type), type="data")
 
             # Memory accesses edges.
             for memacc in v.memoryAccesses:
@@ -594,12 +624,15 @@ class LLVMCDFGVisitor(Visitor):
                 self.G.add_node(v,
                                 attr=(v.opcode),
                                 insts=[(v.instStr)],
+                                type="insn",
                                 root="root")
                 self.root = True
             else:
-                self.G.add_node(v, attr=(v.opcode),
+                self.G.add_node(v,
+                                attr=(v.opcode),
                                 opcodes=[(v.opcode)],
-                                insts=[(v.instStr)])
+                                insts=[(v.instStr)],
+                                type="insn")
 
             # Operands.
             for operand in v.operands:
@@ -617,6 +650,7 @@ class LLVMCDFGCompactVisitor(Visitor):
         """Initialize a CDFG Visitor."""
         Visitor.__init__(self)
         self.edge_types = ["cfg", "data", "mem"]
+        self.node_types = ["bb", "data"]
         self.G = nx.MultiDiGraph()
         self.root = False
 
@@ -625,7 +659,7 @@ class LLVMCDFGCompactVisitor(Visitor):
         if isinstance(v, llvm.graph.FunctionInfo):
             # Function arg nodes.
             for arg in v.args:
-                self.G.add_node(arg, attr=(arg.type))
+                self.G.add_node(arg, attr=(arg.type), type="data")
 
             # Memory accesses edges.
             for memacc in v.memoryAccesses:
@@ -641,14 +675,18 @@ class LLVMCDFGCompactVisitor(Visitor):
             opcodes = [instr.opcode for instr in v.instructions]
 
             if not self.root:
-                self.G.add_node(v, attr=(v.fullName),
+                self.G.add_node(v,
+                                attr=(v.fullName),
                                 opcodes=opcodes,
                                 insts=insts,
+                                type="bb",
                                 root="root")
                 self.root = True
             else:
-                self.G.add_node(v, attr=(v.fullName),
+                self.G.add_node(v,
+                                attr=(v.fullName),
                                 opcode=opcodes,
+                                type="bb",
                                 insts=insts)
 
             # CFG edges: Inter-BB
@@ -676,6 +714,7 @@ class LLVMCDFGCompactOneEdgeVisitor(Visitor):
         """Initialize a CDFG Visitor."""
         Visitor.__init__(self)
         self.edge_types = ["cfg", "data", "mem"]
+        self.node_types = ["bb", "data"]
         self.G = nx.MultiDiGraph()
         self.root = False
 
@@ -684,7 +723,7 @@ class LLVMCDFGCompactOneEdgeVisitor(Visitor):
         if isinstance(v, llvm.graph.FunctionInfo):
             # Function arg nodes.
             for arg in v.args:
-                self.G.add_node(arg, attr=(arg.type))
+                self.G.add_node(arg, attr=(arg.type), type="data")
 
             # Memory accesses edges.
             for memacc in v.memoryAccesses:
@@ -706,15 +745,19 @@ class LLVMCDFGCompactOneEdgeVisitor(Visitor):
             opcodes = [instr.opcode for instr in v.instructions]
 
             if not self.root:
-                self.G.add_node(v, attr=(v.fullName),
+                self.G.add_node(v,
+                                attr=(v.fullName),
                                 opcodes=opcodes,
                                 insts=insts,
+                                type="bb",
                                 root="root")
                 self.root = True
             else:
-                self.G.add_node(v, attr=(v.fullName),
+                self.G.add_node(v,
+                                attr=(v.fullName),
                                 opcodes=opcodes,
-                                insts=insts)
+                                insts=insts,
+                                type="bb")
 
             # CFG edges: Inter-BB
             for succ in v.successors:
@@ -745,6 +788,7 @@ class LLVMCDFGCallVisitor(Visitor):
         """Initialize a CDFGCall Visitor."""
         Visitor.__init__(self)
         self.edge_types = ["cfg", "data", "mem", "call"]
+        self.node_types = ["insn", "root", "data"]
         self.G = nx.MultiDiGraph()
         self.functions = {}
         self.calls = {}
@@ -759,12 +803,12 @@ class LLVMCDFGCallVisitor(Visitor):
             if node:
                 self.G.add_edge(node, v.entryInstruction, attr="call")
             else:
-                self.G.add_node(v, attr="function", root="root")
+                self.G.add_node(v, attr="function", type="root", root="root")
                 self.G.add_edge(v, v.entryInstruction, attr="call")
 
             # Function arg nodes.
             for arg in v.args:
-                self.G.add_node(arg, attr=(arg.type))
+                self.G.add_node(arg, attr=(arg.type), type="data")
 
             # Memory accesses edges.
             for memacc in v.memoryAccesses:
@@ -788,9 +832,11 @@ class LLVMCDFGCallVisitor(Visitor):
 
         if isinstance(v, llvm.graph.InstructionInfo):
             # Instruction nodes.
-            self.G.add_node(v, attr=(v.opcode),
+            self.G.add_node(v,
+                            attr=(v.opcode),
                             opcodes=[(v.opcode)],
-                            insts=[(v.instStr)])
+                            insts=[(v.instStr)],
+                            type="insn")
 
             # Call edges.
             if v.opcode == "ret":
@@ -830,6 +876,7 @@ class LLVMCDFGCallNoRootVisitor(Visitor):
         """Initialize a CDFGCall Visitor."""
         Visitor.__init__(self)
         self.edge_types = ["cfg", "data", "mem", "call"]
+        self.node_types = ["insn", "data"]
         self.G = nx.MultiDiGraph()
         self.functions = {}
         self.calls = {}
@@ -841,7 +888,7 @@ class LLVMCDFGCallNoRootVisitor(Visitor):
 
             # Function arg nodes.
             for arg in v.args:
-                self.G.add_node(arg, attr=(arg.type))
+                self.G.add_node(arg, attr=(arg.type), type="data")
 
             # Memory accesses edges.
             for memacc in v.memoryAccesses:
@@ -865,9 +912,11 @@ class LLVMCDFGCallNoRootVisitor(Visitor):
 
         if isinstance(v, llvm.graph.InstructionInfo):
             # Instruction nodes.
-            self.G.add_node(v, attr=(v.opcode),
+            self.G.add_node(v,
+                            attr=(v.opcode),
                             opcodes=[(v.opcode)],
-                            insts=[(v.instStr)])
+                            insts=[(v.instStr)],
+                            type="insn")
 
             if v.opcode == "call":
                 called_function = (
@@ -900,6 +949,7 @@ class LLVMCDFGCallCompactVisitor(Visitor):
         """Initialize a CDFGCall Visitor."""
         Visitor.__init__(self)
         self.edge_types = ["cfg", "data", "mem", "call"]
+        self.node_types = ["bb", "root", "data"]
         self.G = nx.MultiDiGraph()
         self.functions = {}
         self.calls_bb = {}
@@ -916,12 +966,12 @@ class LLVMCDFGCallCompactVisitor(Visitor):
                                 v.entryInstruction.basicBlock,
                                 attr="call")
             else:
-                self.G.add_node(v, attr="function", root="root")
+                self.G.add_node(v, attr="function", type="root", root="root")
                 self.G.add_edge(v, v.entryInstruction.basicBlock, attr="call")
 
             # Function arg nodes.
             for arg in v.args:
-                self.G.add_node(arg, attr=(arg.type))
+                self.G.add_node(arg, attr=(arg.type), type="data")
 
             # Memory accesses edges.
             for memacc in v.memoryAccesses:
@@ -936,9 +986,11 @@ class LLVMCDFGCallCompactVisitor(Visitor):
             insts = [instr.instStr for instr in v.instructions]
             opcodes = [instr.opcode for instr in v.instructions]
 
-            self.G.add_node(v, attr=(v.fullName),
+            self.G.add_node(v,
+                            attr=(v.fullName),
                             opcodes=opcodes,
-                            insts=insts)
+                            insts=insts,
+                            type="bb")
 
             # CFG edges: Inter-BB
             for succ in v.successors:
@@ -993,6 +1045,7 @@ class LLVMCDFGCallCompactOneEdgeVisitor(Visitor):
         """Initialize a CDFGCall Visitor."""
         Visitor.__init__(self)
         self.edge_types = ["cfg", "data", "mem", "call"]
+        self.node_types = ["bb", "root", "data"]
         self.G = nx.MultiDiGraph()
         self.functions = {}
         self.calls_bb = {}
@@ -1009,12 +1062,12 @@ class LLVMCDFGCallCompactOneEdgeVisitor(Visitor):
                                 v.entryInstruction.basicBlock,
                                 attr="call")
             else:
-                self.G.add_node(v, attr="function", root="root")
+                self.G.add_node(v, attr="function", type="root", root="root")
                 self.G.add_edge(v, v.entryInstruction.basicBlock, attr="call")
 
             # Function arg nodes.
             for arg in v.args:
-                self.G.add_node(arg, attr=(arg.type))
+                self.G.add_node(arg, attr=(arg.type), type="data")
 
             # Memory accesses edges.
             for memacc in v.memoryAccesses:
@@ -1033,9 +1086,11 @@ class LLVMCDFGCallCompactOneEdgeVisitor(Visitor):
             insts = [instr.instStr for instr in v.instructions]
             opcodes = [instr.opcode for instr in v.instructions]
 
-            self.G.add_node(v, attr=(v.fullName),
+            self.G.add_node(v,
+                            attr=(v.fullName),
                             opcodes=opcodes,
-                            insts=insts)
+                            insts=insts,
+                            type="bb")
 
             # CFG edges: Inter-BB
             for succ in v.successors:
@@ -1115,6 +1170,7 @@ class LLVMCDFGCallCompactNoRootVisitor(Visitor):
         """Initialize a CDFGCall Visitor."""
         Visitor.__init__(self)
         self.edge_types = ["cfg", "data", "mem", "call"]
+        self.node_types = ["bb", "data"]
         self.G = nx.MultiDiGraph()
         self.functions = {}
         self.calls_bb = {}
@@ -1126,7 +1182,7 @@ class LLVMCDFGCallCompactNoRootVisitor(Visitor):
 
             # Function arg nodes.
             for arg in v.args:
-                self.G.add_node(arg, attr=(arg.type))
+                self.G.add_node(arg, attr=(arg.type), type="data")
 
             # Memory accesses edges.
             for memacc in v.memoryAccesses:
@@ -1141,9 +1197,11 @@ class LLVMCDFGCallCompactNoRootVisitor(Visitor):
             insts = [instr.instStr for instr in v.instructions]
             opcodes = [instr.opcode for instr in v.instructions]
 
-            self.G.add_node(v, attr=(v.fullName),
+            self.G.add_node(v,
+                            attr=(v.fullName),
                             opcodes=opcodes,
-                            insts=insts)
+                            insts=insts,
+                            type="bb")
 
             # CFG edges: Inter-BB
             for succ in v.successors:
@@ -1193,6 +1251,7 @@ class LLVMCDFGCallCompactOneEdgeNoRootVisitor(Visitor):
         """Initialize a CDFGCall Visitor."""
         Visitor.__init__(self)
         self.edge_types = ["cfg", "data", "mem", "call"]
+        self.node_types = ["bb", "data"]
         self.G = nx.MultiDiGraph()
         self.functions = {}
         self.calls_bb = {}
@@ -1204,7 +1263,7 @@ class LLVMCDFGCallCompactOneEdgeNoRootVisitor(Visitor):
 
             # Function arg nodes.
             for arg in v.args:
-                self.G.add_node(arg, attr=(arg.type))
+                self.G.add_node(arg, attr=(arg.type), type="data")
 
             # Memory accesses edges.
             for memacc in v.memoryAccesses:
@@ -1225,9 +1284,11 @@ class LLVMCDFGCallCompactOneEdgeNoRootVisitor(Visitor):
             insts = [instr.instStr for instr in v.instructions]
             opcodes = [instr.opcode for instr in v.instructions]
 
-            self.G.add_node(v, attr=(v.fullName),
+            self.G.add_node(v,
+                            attr=(v.fullName),
                             opcodes=opcodes,
-                            insts=insts)
+                            insts=insts,
+                            type="bb")
 
             # CFG edges: Inter-BB
             for succ in v.successors:
@@ -1299,6 +1360,7 @@ class LLVMCDFGPlusVisitor(Visitor):
         """Initialize a CDFGPlus Visitor."""
         Visitor.__init__(self)
         self.edge_types = ["cfg", "data", "mem", "call", "bb"]
+        self.node_types = ["insn", "root", "data", "cdfgplusbb"]
         self.G = nx.MultiDiGraph()
         self.functions = {}
         self.calls = {}
@@ -1312,12 +1374,12 @@ class LLVMCDFGPlusVisitor(Visitor):
             if node:
                 self.G.add_edge(node, v.entryInstruction, attr="call")
             else:
-                self.G.add_node(v, attr="function", root="root")
+                self.G.add_node(v, attr="function", type="root", root="root")
                 self.G.add_edge(v, v.entryInstruction, attr="call")
 
             # Function arg nodes.
             for arg in v.args:
-                self.G.add_node(arg, attr=(arg.type))
+                self.G.add_node(arg, attr=(arg.type), type="data")
 
             # Memory accesses
             for memacc in v.memoryAccesses:
@@ -1328,7 +1390,7 @@ class LLVMCDFGPlusVisitor(Visitor):
 
         if isinstance(v, llvm.graph.BasicBlockInfo):
             # BB nodes
-            self.G.add_node(v, attr="bb")
+            self.G.add_node(v, attr="bb", type="cdfgplusbb")
             for instr in v.instructions:
                 self.G.add_edge(instr, v, attr="bb")
             for succ in v.successors:
@@ -1348,9 +1410,11 @@ class LLVMCDFGPlusVisitor(Visitor):
 
         if isinstance(v, llvm.graph.InstructionInfo):
             # Instruction nodes.
-            self.G.add_node(v, attr=(v.opcode),
+            self.G.add_node(v,
+                            attr=(v.opcode),
                             opcodes=[(v.opcode)],
-                            insts=[(v.instStr)])
+                            insts=[(v.instStr)],
+                            type="insn")
 
             # Call edges.
             if v.opcode == "ret":
@@ -1390,6 +1454,7 @@ class LLVMCDFGPlusNoRootVisitor(Visitor):
         """Initialize a CDFGPlus Visitor."""
         Visitor.__init__(self)
         self.edge_types = ["cfg", "data", "mem", "call", "bb"]
+        self.node_types = ["insn", "data", "cdfgplusbb"]
         self.G = nx.MultiDiGraph()
         self.functions = {}
         self.calls = {}
@@ -1401,7 +1466,7 @@ class LLVMCDFGPlusNoRootVisitor(Visitor):
 
             # Function arg nodes.
             for arg in v.args:
-                self.G.add_node(arg, attr=(arg.type))
+                self.G.add_node(arg, attr=(arg.type), type="data")
 
             # Memory accesses
             for memacc in v.memoryAccesses:
@@ -1412,7 +1477,7 @@ class LLVMCDFGPlusNoRootVisitor(Visitor):
 
         if isinstance(v, llvm.graph.BasicBlockInfo):
             # BB nodes
-            self.G.add_node(v, attr="bb")
+            self.G.add_node(v, attr="bb", type="cdfgplusbb")
             for instr in v.instructions:
                 self.G.add_edge(instr, v, attr="bb")
             for succ in v.successors:
@@ -1432,9 +1497,11 @@ class LLVMCDFGPlusNoRootVisitor(Visitor):
 
         if isinstance(v, llvm.graph.InstructionInfo):
             # Instruction nodes.
-            self.G.add_node(v, attr=(v.opcode),
+            self.G.add_node(v,
+                            attr=(v.opcode),
                             opcodes=[(v.opcode)],
-                            insts=[(v.instStr)])
+                            insts=[(v.instStr)],
+                            type="insn")
 
             if v.opcode == "call":
                 called_function = (
@@ -1466,6 +1533,7 @@ class LLVMProGraMLVisitor(Visitor):
         """Initialize a ProGraML Visitor."""
         Visitor.__init__(self)
         self.edge_types = ["cfg", "data", "call"]
+        self.node_types = ["insn", "root", "imm", "id"]
         self.G = nx.MultiDiGraph()
         self.functions = {}
         self.calls = {}
@@ -1480,12 +1548,12 @@ class LLVMProGraMLVisitor(Visitor):
             if node:
                 self.G.add_edge(node, v.entryInstruction, attr="call")
             else:
-                self.G.add_node(v, attr="function", root="root")
+                self.G.add_node(v, attr="function", type="root", root="root")
                 self.G.add_edge(v, v.entryInstruction, attr="call")
 
             # Function arg nodes.
             for arg in v.args:
-                self.G.add_node(arg, attr=(arg.type))
+                self.G.add_node(arg, attr=(arg.type), type="id")
 
         if isinstance(v, llvm.graph.BasicBlockInfo):
             # CFG edges: Inner-BB.
@@ -1502,9 +1570,11 @@ class LLVMProGraMLVisitor(Visitor):
 
         if isinstance(v, llvm.graph.InstructionInfo):
             # Instruction nodes.
-            self.G.add_node(v, attr=(v.opcode),
+            self.G.add_node(v,
+                            attr=(v.opcode),
                             opcodes=[(v.opcode)],
-                            insts=[(v.instStr)])
+                            insts=[(v.instStr)],
+                            type="insn")
 
             # Call edges.
             if v.opcode == "ret":
@@ -1536,12 +1606,17 @@ class LLVMProGraMLVisitor(Visitor):
                     if isinstance(operand, llvm.graph.ConstantInfo) and operand.value:
                         self.G.add_node(operand,
                                         attr=(operand.type),
-                                        value=(operand.value))
+                                        value=(operand.value),
+                                        type="imm")
                     else:
-                        self.G.add_node(operand, attr=(operand.type))
+                        self.G.add_node(operand,
+                                        attr=(operand.type),
+                                        type="id")
                     self.G.add_edge(operand, v, attr="data")
                 elif isinstance(operand, llvm.graph.InstructionInfo):
-                    self.G.add_node((v, operand), attr=(operand.type))
+                    self.G.add_node((v, operand),
+                                    attr=(operand.type),
+                                    type="id")
                     self.G.add_edge(operand, (v, operand), attr="data")
                     self.G.add_edge((v, operand), v, attr="data")
 
@@ -1553,6 +1628,7 @@ class LLVMProGraMLNoRootVisitor(Visitor):
         """Initialize a ProGraML Visitor."""
         Visitor.__init__(self)
         self.edge_types = ["cfg", "data", "call"]
+        self.node_types = ["insn", "imm", "id"]
         self.G = nx.MultiDiGraph()
         self.functions = {}
         self.calls = {}
@@ -1564,7 +1640,7 @@ class LLVMProGraMLNoRootVisitor(Visitor):
 
             # Function arg nodes.
             for arg in v.args:
-                self.G.add_node(arg, attr=(arg.type))
+                self.G.add_node(arg, attr=(arg.type), type="id")
 
         if isinstance(v, llvm.graph.BasicBlockInfo):
             # CFG edges: Inner-BB.
@@ -1581,9 +1657,11 @@ class LLVMProGraMLNoRootVisitor(Visitor):
 
         if isinstance(v, llvm.graph.InstructionInfo):
             # Instruction nodes.
-            self.G.add_node(v, attr=(v.opcode),
+            self.G.add_node(v,
+                            attr=(v.opcode),
                             opcodes=[(v.opcode)],
-                            insts=[(v.instStr)])
+                            insts=[(v.instStr)],
+                            type="insn")
 
             if v.opcode == "call":
                 called_function = (
@@ -1608,12 +1686,17 @@ class LLVMProGraMLNoRootVisitor(Visitor):
                     if isinstance(operand, llvm.graph.ConstantInfo) and operand.value:
                         self.G.add_node(operand,
                                         attr=(operand.type),
-                                        value=(operand.value))
+                                        value=(operand.value),
+                                        type="imm")
                     else:
-                        self.G.add_node(operand, attr=(operand.type))
+                        self.G.add_node(operand,
+                                        attr=(operand.type),
+                                        type="id")
                     self.G.add_edge(operand, v, attr="data")
                 elif isinstance(operand, llvm.graph.InstructionInfo):
-                    self.G.add_node((v, operand), attr=(operand.type))
+                    self.G.add_node((v, operand),
+                                    attr=(operand.type),
+                                    type="id")
                     self.G.add_edge(operand, (v, operand), attr="data")
                     self.G.add_edge((v, operand), v, attr="data")
 
@@ -1731,4 +1814,7 @@ class LLVMGraphBuilder(common.RepresentationBuilder):
                 self._tokens[attr] = 1
             self._tokens[attr] += 1
 
-        return common.Graph(vis.G, self.get_tokens(), vis.edge_types)
+        return common.Graph(vis.G,
+                            self.get_tokens(),
+                            vis.node_types,
+                            vis.edge_types)

@@ -20,7 +20,6 @@ import csv
 import glob
 import tempfile
 import subprocess
-import numpy as np
 
 from absl import logging as lg
 
@@ -47,17 +46,120 @@ class Inst2Vec:
 
     __data_dir = 'yacos/data/inst2vec'
     __embeddings_file = 'inst2vec_augmented_embeddings.pickle'
+    __vocabulary_file = 'inst2vec_augmented_dictionary.pickle'
+
+    @classproperty
+    def data_directory_ir(cls):
+        """Getter."""
+        return cls.__data_directory_ir
+
+    @classproperty
+    def data_directory_seq(cls):
+        """Getter."""
+        return cls.__data_directory_seq
+
+    @classproperty
+    def unknown(cls):
+        """Get unknown index and embeddings."""
+        top_dir = os.path.join(os.environ.get('HOME'), '.local')
+        if not os.path.isdir(os.path.join(top_dir, 'yacos')):
+            lg.error('YaCoS data does not exist.')
+            sys.exit(1)
+
+        # Load the vocabulary
+        vocabulary_file = os.path.join(top_dir,
+                                       Inst2Vec.__data_dir,
+                                       Inst2Vec.__vocabulary_file)
+        vocabulary = IO.load_pickle_or_fail(vocabulary_file)
+
+        # Load the embeddings
+        embeddings_file = os.path.join(top_dir,
+                                       Inst2Vec.__data_dir,
+                                       Inst2Vec.__embeddings_file)
+        embeddings = IO.load_pickle_or_fail(embeddings_file)
+
+        unk_index = vocabulary['!UNK']
+        unk_embeddings = embeddings[unk_index]
+
+        del vocabulary
+        del embeddings
+
+        # Return embeddings
+        return unk_index, unk_embeddings
+
+    @classproperty
+    def length(cls):
+        """Get embeddings length."""
+        top_dir = os.path.join(os.environ.get('HOME'), '.local')
+        if not os.path.isdir(os.path.join(top_dir, 'yacos')):
+            lg.error('YaCoS data does not exist.')
+            sys.exit(1)
+
+        # Load the vocabulary
+        vocabulary_file = os.path.join(top_dir,
+                                       Inst2Vec.__data_dir,
+                                       Inst2Vec.__vocabulary_file)
+        vocabulary = IO.load_pickle_or_fail(vocabulary_file)
+
+        # Load the embeddings
+        embeddings_file = os.path.join(top_dir,
+                                       Inst2Vec.__data_dir,
+                                       Inst2Vec.__embeddings_file)
+        embeddings = IO.load_pickle_or_fail(embeddings_file)
+
+        unk_index = vocabulary['!UNK']
+        unk_embeddings = embeddings[unk_index]
+
+        del vocabulary
+        del embeddings
+
+        # Return embeddings
+        return len(unk_embeddings)
+
+    @classproperty
+    def vocabulary(cls):
+        """Get the vocabulary."""
+        top_dir = os.path.join(os.environ.get('HOME'), '.local')
+        if not os.path.isdir(os.path.join(top_dir, 'yacos')):
+            lg.error('YaCoS data does not exist.')
+            sys.exit(1)
+
+        # Load the vocabulary
+        vocabulary_file = os.path.join(top_dir,
+                                       Inst2Vec.__data_dir,
+                                       Inst2Vec.__vocabulary_file)
+        vocabulary = IO.load_pickle_or_fail(vocabulary_file)
+
+        # Return the vocabulary
+        return vocabulary
+
+    @classproperty
+    def embeddings(cls):
+        """Get the embeddings."""
+        top_dir = os.path.join(os.environ.get('HOME'), '.local')
+        if not os.path.isdir(os.path.join(top_dir, 'yacos')):
+            lg.error('YaCoS data does not exist.')
+            sys.exit(1)
+
+        # Load the embeddings
+        embeddings_file = os.path.join(top_dir,
+                                       Inst2Vec.__data_dir,
+                                       Inst2Vec.__embeddings_file)
+        embeddings = IO.load_pickle_or_fail(embeddings_file)
+
+        # Return the embeddings
+        return embeddings
 
     @staticmethod
-    def prepare_benchmarks(benchmarks_filename,
-                           benchmarks_directory):
+    def prepare_benchmarks(benchmarks_directory,
+                           benchmarks_filename):
         """We need to store all benchmarks in the same location.
 
         Parameters
         ----------
-        benchmarks_filename : str
+        benchmarks_directory : str
 
-        benchmarks_directory: str
+        benchmarks_filename: str
         """
         Inst2Vec.__data_directory_ir = tempfile.mkdtemp(suffix='_ir')
 
@@ -83,24 +185,25 @@ class Inst2Vec:
                 sys.exit(1)
 
     @staticmethod
-    def prepare_benchmark(benchmark,
-                          benchmarks_directory):
+    def prepare_benchmark(benchmark_directory,
+                          benchmark=''):
         """We need to store all benchmarks in the same location.
 
         Parameters
         ----------
-        benchmark : str
+        benchmark_directory : str
 
-        benchmark_directory: str
+        benchmark: str
         """
         Inst2Vec.__data_directory_ir = tempfile.mkdtemp(suffix='_ir')
 
         index = benchmark.find('.')
         src = os.path.join(
-            benchmarks_directory,
-            benchmark[:index],
-            benchmark[index+1:]
-        )
+                    benchmark_directory,
+                    benchmark[:index],
+                    benchmark[index+1:]
+              ) if benchmark else benchmark_directory
+
         dst = os.path.join(Inst2Vec.__data_directory_ir, benchmark)
 
         cmdline = 'ln -s {} {}'.format(src, dst)
@@ -114,16 +217,6 @@ class Inst2Vec:
         except subprocess.CalledProcessError:
             lg.error('Prepare benchmark: {}'.format(benchmark))
             sys.exit(1)
-
-    @classproperty
-    def data_directory_ir(cls):
-        """Getter."""
-        return cls.__data_directory_ir
-
-    @classproperty
-    def data_directory_seq(cls):
-        """Getter."""
-        return cls.__data_directory_seq
 
     @staticmethod
     def remove_data_directory():
@@ -139,18 +232,19 @@ class Inst2Vec:
             lg.warning('Removing data directory')
 
     @staticmethod
-    def compile_and_extract(benchmarks_filename,
-                            benchmarks_directory,
+    def compile_and_extract(benchmarks_directory,
+                            benchmarks_filename,
                             sequence,
                             embeddings_file=None,
-                            vocabulary_dir=None):
+                            vocabulary_dir=None,
+                            data_type='index_embeddings'):
         """Compile the benchmarks and extract int2vec representation.
 
         Parameters
         ----------
-        benchmarks_filename : str
+        benchmarks_directory : str
 
-        benchmarks_directory: str
+        benchmarks_filename: str
 
         sequence : list
 
@@ -180,14 +274,14 @@ class Inst2Vec:
             vocabulary_dir = os.path.join(top_dir, Inst2Vec.__data_dir)
 
         # Prepare the directories
-        Inst2Vec.prepare_benchmarks(benchmarks_filename,
-                                    benchmarks_directory)
+        Inst2Vec.prepare_benchmarks(benchmarks_directory,
+                                    benchmarks_filename)
 
         for benchmark in os.listdir(Inst2Vec.__data_directory_ir):
             bench_dir = os.path.join(Inst2Vec.__data_directory_ir, benchmark)
             Engine.compile(bench_dir,
-                            'opt',
-                            Sequence.name_pass_to_string(sequence))
+                           'opt',
+                           Sequence.name_pass_to_string(sequence))
             Engine.disassemble(bench_dir, 'a.out_o')
 
         # IR -> embeddings' index
@@ -210,19 +304,38 @@ class Inst2Vec:
             bench_dir = os.path.join(Inst2Vec.__data_directory_seq, directory)
             file_ = open('{}/a.out_o.csv'.format(bench_dir), 'r')
             reader = csv.reader(file_)
-            data = [embeddings[int(row[0])] for row in reader]
-            processed[directory] = np.matrix(data)
+
+            index = []
+            emb = []
+            for row in reader:
+                index.append(int(row[0]))
+                emb.append(list(embeddings[int(row[0])]))
+
+            if data_type == 'index':
+                processed[directory] = index
+            elif data_type == 'embeddings':
+                processed[directory] = emb
+            elif data_type == 'index_embeddings':
+                processed[directory] = (index, emb)
+            else:
+                lg.error('Data type {} does not exist.'.format(data_type))
+                sys.exit(1)
+
             file_.close()
+
+        # Free embeddings
+        del embeddings
 
         # Return the representation
         return processed
 
     @staticmethod
     def extract(embeddings_file=None,
-                vocabulary_dir=None):
+                vocabulary_dir=None,
+                data_type='index_embeddings'):
         """Extract int2vec representation.
 
-        This method have to use for processing only 1 benchmark.
+        Process only 1 benchmark.
 
         Parameters
         ----------
@@ -273,26 +386,30 @@ class Inst2Vec:
         for benchmark in benchmarks:
             file_ = open(benchmark, 'r')
             reader = csv.reader(file_)
-            data = [embeddings[int(row[0])] for row in reader]
+
+            index = []
+            emb = []
+            for row in reader:
+                index.append(int(row[0]))
+                emb += list(embeddings[int(row[0])])
+
             name = benchmark.replace('{}/'.format(directory), '')
             name = name.replace('_seq.csv', '')
-            processed[name] = np.matrix(data)
+
+            if data_type == 'index':
+                processed[name] = index
+            elif data_type == 'embeddings':
+                processed[name] = emb
+            elif data_type == 'index_embeddings':
+                processed[name] = (index, emb)
+            else:
+                lg.error('Data type {} does not exist.'.format(data_type))
+                sys.exit(1)
+
             file_.close()
 
+        # Free embeddings
+        del embeddings
+
+        # Return the representation
         return processed
-
-    @staticmethod
-    def get_unknown_embeddings():
-        """Get unknown embeddings."""
-        top_dir = os.path.join(os.environ.get('HOME'), '.local')
-        if not os.path.isdir(os.path.join(top_dir, 'yacos')):
-            lg.error('YaCoS data does not exist.')
-            sys.exit(1)
-        embeddings_file = os.path.join(top_dir,
-                                       Inst2Vec.__data_dir,
-                                       Inst2Vec.__embeddings_file)
-
-        # Load the embeddings
-        embeddings = IO.load_pickle_or_fail(embeddings_file)
-        # Return embeddings
-        return embeddings[8564]

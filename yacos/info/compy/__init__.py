@@ -49,4 +49,4 @@ from .syntax_seq import (
 )
 from .llvm_seq import LLVMSeqVisitor, LLVMSeqBuilder
 from .llvm_info import LLVMNamesBuilder, LLVMInstsBuilder, LLVMWLCostBuilder
-from .llvm_vec import LLVMMSFBuilder, LLVMIR2VecBuilder
+from .llvm_vec import LLVMHistogramBuilder, LLVMOpcodesBuilder, LLVMMSFBuilder, LLVMIR2VecBuilder

@@ -28,6 +28,8 @@ limitations under the License.
 #include "llvm_msf_pass.h"
 #include "llvm_names_pass.h"
 #include "llvm_insts_pass.h"
+#include "llvm_histogram_pass.h"
+#include "llvm_opcodes_pass.h"
 #include "llvm_wl_cost_pass.h"
 #include "llvm_ir2vec_pass.h"
 
@@ -162,6 +164,52 @@ insts::ExtractionInfoPtr LLVMIRExtractor::InstsFromIR(std::string filename) {
   std::vector<::llvm::Pass *> passes;
 
   insts::ExtractorPass *pass = new insts::ExtractorPass();
+  passes.push_back(pass);
+
+  llvmDriver_->Invoke(filename, passes);
+
+  return pass->extractionInfo;
+}
+
+histogram::ExtractionInfoPtr LLVMIRExtractor::HistogramFromSource(std::string filename) {
+  std::vector<::clang::FrontendAction *> frontendActions;
+  std::vector<::llvm::Pass *> passes;
+
+  histogram::ExtractorPass *pass = new histogram::ExtractorPass();
+  passes.push_back(pass);
+
+  clangDriver_->Invoke(filename, frontendActions, passes);
+
+  return pass->extractionInfo;
+}
+
+histogram::ExtractionInfoPtr LLVMIRExtractor::HistogramFromIR(std::string filename) {
+  std::vector<::llvm::Pass *> passes;
+
+  histogram::ExtractorPass *pass = new histogram::ExtractorPass();
+  passes.push_back(pass);
+
+  llvmDriver_->Invoke(filename, passes);
+
+  return pass->extractionInfo;
+}
+
+opcodes::ExtractionInfoPtr LLVMIRExtractor::OpcodesFromSource(std::string filename) {
+  std::vector<::clang::FrontendAction *> frontendActions;
+  std::vector<::llvm::Pass *> passes;
+
+  opcodes::ExtractorPass *pass = new opcodes::ExtractorPass();
+  passes.push_back(pass);
+
+  clangDriver_->Invoke(filename, frontendActions, passes);
+
+  return pass->extractionInfo;
+}
+
+opcodes::ExtractionInfoPtr LLVMIRExtractor::OpcodesFromIR(std::string filename) {
+  std::vector<::llvm::Pass *> passes;
+
+  opcodes::ExtractorPass *pass = new opcodes::ExtractorPass();
   passes.push_back(pass);
 
   llvmDriver_->Invoke(filename, passes);
