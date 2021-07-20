@@ -61,7 +61,7 @@ def execute(argv):
                                                         False,
                                                         True)
 
-            Inst2Vec.prepare_benchmark(benchmark, FLAGS.benchmarks_directory)
+            Inst2Vec.prepare_benchmark(FLAGS.benchmarks_directory, benchmark)
 
             rep = Inst2Vec.extract()
 

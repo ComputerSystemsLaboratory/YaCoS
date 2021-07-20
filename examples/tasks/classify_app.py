@@ -64,8 +64,8 @@ def graph2stellar(graph):
     """Convert the graph to StellarGraph representation."""
 
     nodes_features = graph.get_nodes_inst2vec_embeddings()
-    n_index = [index for index, _ in nodes_features]
-    n_features = [features for _, features in nodes_features]
+    n_index = [index for index, _, _ in nodes_features]
+    n_features = [features for _, _, features in nodes_features]
     nodes = pd.DataFrame({"embeddings": n_features}, index=n_index)
 
     edges = graph.get_edges_dataFrame()

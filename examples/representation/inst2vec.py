@@ -57,7 +57,7 @@ def execute(argv):
             Engine.compile(benchmark_dir, 'opt', '-O0')
             Engine.disassemble(benchmark_dir, 'a.out_o')
 
-            Inst2Vec.prepare_benchmark(benchmark, FLAGS.benchmarks_directory)
+            Inst2Vec.prepare_benchmark(FLAGS.benchmarks_directory, benchmark)
 
             rep = Inst2Vec.extract()
             values = list(rep.values())

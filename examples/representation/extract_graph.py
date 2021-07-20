@@ -36,7 +36,7 @@ from yacos.info.compy.extractors import ClangDriver, LLVMDriver
 def extract_graph_data(graph, graph_type):
     """Convert the graph to StellarGraph representation."""
 
-    nodes = []
+    nodes = {}
 
     if 'ast' in graph_type:
         nodes['w2v'] = graph.get_nodes_word2vec_embeddings('ast')
@@ -49,7 +49,7 @@ def extract_graph_data(graph, graph_type):
         nodes['i2v'] = graph.get_nodes_inst2vec_embeddings()
         nodes['ir2v'] = graph.get_nodes_ir2vec_embeddings()
 
-    edges = graph.get_edges_dataFrame()
+    edges = graph.get_edges_str_dataFrame()
 
     return edges, nodes
 
@@ -120,7 +120,7 @@ def execute(argv):
                 for subdir in os.listdir(FLAGS.dataset_directory)
                 if os.path.isdir(os.path.join(FLAGS.dataset_directory, subdir))
               ]
-    print(folders)
+
     # Load data from all folders
     for folder in folders:
         sources = glob.glob('{}/*.ll'.format(folder))
@@ -166,7 +166,7 @@ if __name__ == '__main__':
                         'cfgcall',
                         'cfgcallnoroot',
                         'cfgcallcompact',
-                        'cfgcallcompact1e'
+                        'cfgcallcompact1e',
                         'cfgcallcompactnoroot',
                         'cfgcallcompact1enoroot',
                         'cdfg',

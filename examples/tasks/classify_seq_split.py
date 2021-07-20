@@ -68,8 +68,8 @@ def graph2stellar(data, n_features, graph='ir'):
             elif n_features == 'bag_of_word':
                 nodes_features = graph.get_nodes_bag_of_words_embeddings(graph)
 
-            n_index = [index for index, _ in nodes_features]
-            n_features = [features for _, features in nodes_features]
+            n_index = [index for index, _, _ in nodes_features]
+            n_features = [features for _, _, features in nodes_features]
 
             node_data = pd.DataFrame({"embeddings": n_features}, index=n_index)
 
