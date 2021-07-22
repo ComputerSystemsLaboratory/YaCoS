@@ -71,7 +71,7 @@ def graph2stellar(data, n_features, graph='ir'):
             n_index = [index for index, _, _ in nodes_features]
             n_features = [features for _, _, features in nodes_features]
 
-            node_data = pd.DataFrame({"embeddings": n_features}, index=n_index)
+            node_data = pd.DataFrame(n_features, index=n_index)
 
             edges = graph.get_edges_dataFrame()
 

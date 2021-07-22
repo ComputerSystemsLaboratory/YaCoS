@@ -60,7 +60,7 @@ def graph2stellar(data):
             nodes_features = graph.get_nodes_inst2vec_embeddings()
             n_index = [index for index, _, _ in nodes_features]
             n_features = [features for _, _, features in nodes_features]
-            nodes = pd.DataFrame({"embeddings": n_features}, index=n_index)
+            nodes = pd.DataFrame(n_features, index=n_index)
 
             edges = graph.get_edges_dataFrame()
 
