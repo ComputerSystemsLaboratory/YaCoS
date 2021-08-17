@@ -513,10 +513,18 @@ class Graph(object):
                         inst_ = "\n".join(inst)
                     else:
                         inst_ = inst
-                    preprocessed, _ = i2v_pre.preprocess([[inst_]])
-                    preprocessed = i2v_pre.PreprocessStatement(
+                    try:
+                        preprocessed, _ = i2v_pre.preprocess([[inst_]])
+                        preprocessed = i2v_pre.PreprocessStatement(
                                         preprocessed[0][0]
-                                   )
+                                        )
+                    except Exception:
+                        #
+                        # TODO: preprocess do not handle:
+                        #
+                        # call void asm sideeffect "movgs $0,ibar0", "r,~{dirflag},~{fpsr},~{flags}"(i64 %167) #2, !srcloc !2
+                        #
+                        preprocessed = '!UNK'
                     if preprocessed in self.__inst2vec_dictionary:
                         embeddings = self.__inst2vec_embeddings[
                                     self.__inst2vec_dictionary[preprocessed]
@@ -568,10 +576,18 @@ class Graph(object):
                         inst_ = "\n".join(inst)
                     else:
                         inst_ = inst
-                    preprocessed, _ = i2v_pre.preprocess([[inst_]])
-                    preprocessed = i2v_pre.PreprocessStatement(
+                    try:
+                        preprocessed, _ = i2v_pre.preprocess([[inst_]])
+                        preprocessed = i2v_pre.PreprocessStatement(
                                         preprocessed[0][0]
-                                   )
+                                        )
+                    except Exception:
+                        #
+                        # TODO: preprocess do not handle:
+                        #
+                        # call void asm sideeffect "movgs $0,ibar0", "r,~{dirflag},~{fpsr},~{flags}"(i64 %167) #2, !srcloc !2
+                        #
+                        preprocessed = '!UNK'
                     if preprocessed in self.__ir2vec_dictionary:
                         embeddings = self.__ir2vec_embeddings[
                                     self.__ir2vec_dictionary[preprocessed]
