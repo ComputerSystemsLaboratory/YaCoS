@@ -85,13 +85,13 @@ def execute(argv):
                     padding.append(embeddings[idx])
                 for i in range(len(indexes), max_length):
                     padding.append(embeddings[unk_idx])
-            else:
+            elif FLAGS.embeddings == 'sequence':
                 for idx in indexes:
                     padding += list(embeddings[idx])
                 for i in range(len(indexes), max_length):
                     padding += list(embeddings[unk_idx])
             filename = os.path.join(output_dir, bench)
-            np.savez_compressed(filename, values=padding, dtype=object)
+            np.savez_compressed(filename, values=padding)
 
     del embeddings
 
@@ -106,9 +106,6 @@ if __name__ == '__main__':
                       'lower',
                       ['lower', 'matrix2d', 'sequence'],
                       'Type of embeddings')
-    flags.DEFINE_boolean('d2_embeddings',
-                         False,
-                         '2D embeddings')
     flags.mark_flag_as_required('dataset_directory')
 
     app.run(execute)

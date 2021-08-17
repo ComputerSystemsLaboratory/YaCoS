@@ -135,7 +135,7 @@ def execute(argv):
     # Load data from all folders
     for folder in folders:
         # Create the output directory.
-        output_dir = '{}_llvm_type_insts'.format(folder)
+        output_dir = '{}_llvm_histogram'.format(folder)
         os.makedirs(output_dir, exist_ok=True)
 
         # Extract "ir2vec" from the file

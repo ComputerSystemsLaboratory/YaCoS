@@ -57,6 +57,10 @@ def execute(argv):
                 if os.path.isdir(os.path.join(FLAGS.dataset_directory, subdir))
               ]
 
+    # Extract ir2vec
+    ir2vec = {}
+    max_length = []
+
     # Load data from all folders
     for folder in folders:
         # Create the output directory.
@@ -70,8 +74,25 @@ def execute(argv):
             extractionInfo = builder.ir_to_info(source)
             filename = source.replace(folder, output_dir)
             filename = filename[:-3]
-            np.savez_compressed(filename,
-                                values=extractionInfo.moduleInfo.ir2vec)
+            if FLAGS.embeddings == 'program':
+                np.savez_compressed(filename,
+                                    values=extractionInfo.moduleInfo.ir2vec)
+            elif FLAGS.embeddings == 'instructions':
+                ir2vec[filename] = extractionInfo.instructionInfos
+                max_length.append(len(extractionInfo.instructionInfos))
+
+    if FLAGS.embeddings == 'instructions':
+        # Padding
+        max_length = max(max_length)
+        unknown = np.zeros(300)
+
+        for filename, instructions in ir2vec.items():
+            padding = []
+            for instruction in instructions:
+                padding.append(instruction.ir2vec)
+            for i in range(len(instructions), max_length):
+                padding.append(unknown)
+            np.savez_compressed(filename, values=padding)
 
 
 # Execute
@@ -80,6 +101,10 @@ if __name__ == '__main__':
     flags.DEFINE_string('dataset_directory',
                         None,
                         'Dataset directory')
+    flags.DEFINE_enum('embeddings',
+                      'program',
+                      ['program', 'instructions'],
+                      'Type of embeddings')
     flags.mark_flag_as_required('dataset_directory')
 
     app.run(execute)
