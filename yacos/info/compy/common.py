@@ -780,6 +780,18 @@ class Graph(object):
                 embeddings = self.__opcode_embeddings('identifier')
             elif type == "imm":
                 embeddings = self.__opcode_embeddings('immediate')
+            elif type == "fdecl":
+                embeddings = self.__opcode_embeddings('fdecl')
+            elif type == "arg":
+                embeddings = self.__opcode_embeddings(data["attr"][1])
+            elif type == "stm":
+                embeddings = self.__opcode_embeddings(data["attr"])
+            elif type == "arel":
+                embeddings = self.__opcode_embeddings(data["attr"])
+            elif type == "rrel":
+                embeddings = self.__opcode_embeddings(data["attr"])
+            elif type == "cfg":
+                embeddings = self.__opcode_embeddings(data["attr"])
             else:
                 lg.error("Node type ({}) does not exist.".format(type))
                 sys.exit(1)
