@@ -32,6 +32,7 @@ namespace lg = compy::llvm::graph;
 namespace ls = compy::llvm::seq;
 namespace ln = compy::llvm::names;
 namespace lm = compy::llvm::msf;
+namespace lp = compy::llvm::loop;
 namespace li = compy::llvm::insts;
 namespace lh = compy::llvm::histogram;
 namespace lo = compy::llvm::opcodes;
@@ -222,6 +223,8 @@ void registerLLVMExtractor(py::module m_parent) {
   llvmExtractor.def("SeqFromIR", &LE::SeqFromIR);
   llvmExtractor.def("MSFFromSource", &LE::MSFFromSource);
   llvmExtractor.def("MSFFromIR", &LE::MSFFromIR);
+  llvmExtractor.def("LoopFromSource", &LE::LoopFromSource);
+  llvmExtractor.def("LoopFromIR", &LE::LoopFromIR);
   llvmExtractor.def("NamesFromSource", &LE::NamesFromSource);
   llvmExtractor.def("NamesFromIR", &LE::NamesFromIR);
   llvmExtractor.def("InstsFromSource", &LE::InstsFromSource);
@@ -358,6 +361,21 @@ void registerLLVMExtractor(py::module m_parent) {
       .def_readonly("name", &lm::FunctionInfo::name)
       .def_readonly("signature", &lm::FunctionInfo::signature)
       .def_readonly("features", &lm::FunctionInfo::features);
+
+  // Loop Features extractor
+  py::module m_loop = m.def_submodule("loop");
+
+  py::class_<lp::ExtractionInfo, std::shared_ptr<lp::ExtractionInfo>>(
+      m_loop, "ExtractionInfo")
+      .def("accept", &lp::ExtractionInfo::accept)
+      .def_readonly("functionInfos", &lp::ExtractionInfo::functionInfos);
+
+  py::class_<lp::FunctionInfo, std::shared_ptr<lp::FunctionInfo>>(
+      m_loop, "FunctionInfo")
+      .def("accept", &lp::FunctionInfo::accept)
+      .def_readonly("name", &lp::FunctionInfo::name)
+      .def_readonly("signature", &lp::FunctionInfo::signature)
+      .def_readonly("features", &lp::FunctionInfo::features);
 
   // LLVM Instructions extractor
   py::module m_insts = m.def_submodule("insts");

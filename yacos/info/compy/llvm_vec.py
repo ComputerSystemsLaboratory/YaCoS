@@ -155,6 +155,50 @@ class LLVMMSFBuilder():
         return info
 
 
+class LLVMLoopBuilder():
+    """Loop Features."""
+
+    def __init__(self, driver=None):
+        """Initialize the representation."""
+
+        if driver:
+            self.__driver = driver
+        else:
+            self.__driver = ClangDriver(
+                ClangDriver.ProgrammingLanguage.C,
+                ClangDriver.OptimizationLevel.O3,
+                [],
+                ["-Wall"],
+            )
+        self.__extractor = LLVMIRExtractor(self.__driver)
+
+    def source_to_info(self, filename, additional_include_dir=None):
+        """Extract the representation from source code."""
+        if not isinstance(self.__driver, ClangDriver):
+            lg.error('source_to_info needs ClangDriver')
+            sys.exit(1)
+        if additional_include_dir:
+            self.__driver.addIncludeDir(
+                additional_include_dir, ClangDriver.IncludeDirType.User
+            )
+        info = self.__extractor.LoopFromSource(filename)
+        if additional_include_dir:
+            self.__driver.removeIncludeDir(
+                additional_include_dir, ClangDriver.IncludeDirType.User
+            )
+
+        return info
+
+    def ir_to_info(self, filename):
+        """Extract representation from IR."""
+        if not isinstance(self.__driver, LLVMDriver):
+            lg.error('ir_to_info needs LLVMDriver')
+            sys.exit(1)
+        info = self.__extractor.LoopFromIR(filename)
+
+        return info
+
+
 class LLVMIR2VecBuilder():
     """Globals and Functions names."""
 

@@ -251,6 +251,31 @@ struct ExtractionInfo : IVisitee {
 
 }  // namespace msf
 
+namespace loop {
+struct FunctionInfo;
+using FunctionInfoPtr = std::shared_ptr<FunctionInfo>;
+
+struct ExtractionInfo;
+using ExtractionInfoPtr = std::shared_ptr<ExtractionInfo>;
+
+struct FunctionInfo : IVisitee {
+  std::string name;
+  std::vector<std::string> signature;
+  std::map<std::string, float> features;
+
+  void accept(IVisitor* v) override { v->visit(this); }
+};
+
+struct ExtractionInfo : IVisitee {
+  std::vector<FunctionInfoPtr> functionInfos;
+  void accept(IVisitor* v) override {
+    v->visit(this);
+    for (const auto &it : functionInfos) it->accept(v);
+  }
+};
+
+}  // namespace loop
+
 namespace insts {
 struct FunctionInfo;
 using FunctionInfoPtr = std::shared_ptr<FunctionInfo>;
@@ -414,6 +439,8 @@ class LLVMIRExtractor {
   seq::ExtractionInfoPtr SeqFromIR(std::string filename);
   msf::ExtractionInfoPtr MSFFromSource(std::string filename);
   msf::ExtractionInfoPtr MSFFromIR(std::string filename);
+  loop::ExtractionInfoPtr LoopFromSource(std::string filename);
+  loop::ExtractionInfoPtr LoopFromIR(std::string filename);
   names::ExtractionInfoPtr NamesFromSource(std::string filename);
   names::ExtractionInfoPtr NamesFromIR(std::string filename);
   insts::ExtractionInfoPtr InstsFromSource(std::string filename);

@@ -26,6 +26,7 @@ limitations under the License.
 #include "llvm_graph_pass.h"
 #include "llvm_seq_pass.h"
 #include "llvm_msf_pass.h"
+#include "llvm_loop_pass.h"
 #include "llvm_names_pass.h"
 #include "llvm_insts_pass.h"
 #include "llvm_histogram_pass.h"
@@ -116,6 +117,29 @@ msf::ExtractionInfoPtr LLVMIRExtractor::MSFFromIR(std::string filename) {
   std::vector<::llvm::Pass *> passes;
 
   msf::ExtractorPass *pass = new msf::ExtractorPass();
+  passes.push_back(pass);
+
+  llvmDriver_->Invoke(filename, passes);
+
+  return pass->extractionInfo;
+}
+
+loop::ExtractionInfoPtr LLVMIRExtractor::LoopFromSource(std::string filename) {
+  std::vector<::clang::FrontendAction *> frontendActions;
+  std::vector<::llvm::Pass *> passes;
+
+  loop::ExtractorPass *pass = new loop::ExtractorPass();
+  passes.push_back(pass);
+
+  clangDriver_->Invoke(filename, frontendActions, passes);
+
+  return pass->extractionInfo;
+}
+
+loop::ExtractionInfoPtr LLVMIRExtractor::LoopFromIR(std::string filename) {
+  std::vector<::llvm::Pass *> passes;
+
+  loop::ExtractorPass *pass = new loop::ExtractorPass();
   passes.push_back(pass);
 
   llvmDriver_->Invoke(filename, passes);

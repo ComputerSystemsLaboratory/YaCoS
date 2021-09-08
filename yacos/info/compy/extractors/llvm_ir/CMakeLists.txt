@@ -12,6 +12,8 @@ add_library(llvm_extractor
     llvm_opcodes_pass.cc
         llvm_wl_cost_pass.cc
 	llvm_wl_cost_funcinfo.cc
+  llvm_loop_pass.cc
+llvm_loop_funcinfo.cc
         )
 target_link_libraries(llvm_extractor
 	wl_static_profiler
