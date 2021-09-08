@@ -335,17 +335,17 @@ class Engine:
 
         if isinstance(sequence, str):
             Engine.compile(benchmark_directory,
-                            compiler,
-                            sequence,
-                            working_set,
-                            times_ if Goal.has_compile_time(goals) else 1)
+                           compiler,
+                           sequence,
+                           working_set,
+                           times_ if Goal.has_compile_time(goals) else 1)
         elif isinstance(sequence, dict):
             Engine.extract_globals_and_functions(benchmark_directory)
             Engine.compilefunctions(benchmark_directory,
-                                     compiler,
-                                     sequence,
-                                     working_set,
-                                     times_ if Goal.has_compile_time(goals) else 1)
+                                    compiler,
+                                    sequence,
+                                    working_set,
+                                    times_ if Goal.has_compile_time(goals) else 1)
 
         if verify_output and Goal.only_compile_time_goal(goals):
             out_ok = Engine.execute(benchmark_directory,
