@@ -489,7 +489,7 @@ class Graph(object):
         node_ints = [self.__node_attrs.index(n_str) for n_str in node_strs]
         return node_ints
 
-    def get_nodes_inst2vec_embeddings(self):
+    def get_nodes_inst2vec_embeddings(self, type_name=False):
         """Return the nodes embeddings (int2vec)."""
         nodes_keys = list(self.__get_node_attr_dict().keys())
         if not self.__inst2vec_dictionary:
@@ -547,12 +547,12 @@ class Graph(object):
                 sys.exit(1)
 
             nodes.append((nodes_keys.index(n),
-                          type,  # self.__node_types.index(type),
+                          type if type_name else self.__node_types.index(type),
                           np.array(embeddings)))
 
         return nodes
 
-    def get_nodes_ir2vec_embeddings(self):
+    def get_nodes_ir2vec_embeddings(self, type_name=False):
         """Return the nodes embeddings (ir2vec)."""
         nodes_keys = list(self.__get_node_attr_dict().keys())
         if not self.__ir2vec_dictionary:
@@ -610,14 +610,15 @@ class Graph(object):
                 sys.exit(1)
 
             nodes.append((nodes_keys.index(n),
-                          type,  # self.__node_types.index(type),
+                          type if type_name else self.__node_types.index(type),
                           np.array(embeddings)))
 
         return nodes
 
     def get_nodes_bag_of_words_embeddings(self,
                                           graph_type='ir',
-                                          compact=False):
+                                          compact=False,
+                                          type_name=False):
         """Return the nodes embeddings (bag of words)."""
         if graph_type == 'ast':
             if not self.__boo_ast:
@@ -699,14 +700,15 @@ class Graph(object):
                 sys.exit(1)
 
             nodes.append((nodes_keys.index(n),
-                          type,  # self.__node_types.index(type),
+                          type if type_name else self.__node_types.index(type),
                           np.array(embeddings)))
 
         return nodes
 
     def get_nodes_word2vec_embeddings(self,
                                       graph_type='ir',
-                                      skip_gram=False):
+                                      skip_gram=False,
+                                      type_name=False):
         """Return the nodes embeddings (word2vec)."""
         nodes_keys = list(self.__get_node_attr_dict().keys())
 
@@ -756,12 +758,12 @@ class Graph(object):
                 sys.exit(1)
 
             nodes.append((nodes_keys.index(n),
-                          type,  # self.__node_types.index(type),
+                          type if type_name else self.__node_types.index(type),
                           np.array(embeddings)))
 
         return nodes
 
-    def get_nodes_opcode_embeddings(self):
+    def get_nodes_opcode_embeddings(self, type_name=False):
         """Return the nodes embeddings (word2vec)."""
         nodes_keys = list(self.__get_node_attr_dict().keys())
 
@@ -797,7 +799,7 @@ class Graph(object):
                 sys.exit(1)
 
             nodes.append((nodes_keys.index(n),
-                          type,  # self.__node_types.index(type),
+                          type if type_name else self.__node_types.index(type),
                           np.array(embeddings)))
 
         return nodes

@@ -71,8 +71,9 @@ def execute(argv):
 
     for folder, data in inst2vec.items():
         # Create the output directory.
-        output_dir = '{}_inst2vec'.format(folder)
-        os.makedirs(output_dir, exist_ok=True)
+        outdir = os.path.join(folder.replace(FLAGS.dataset_directory,
+                              'inst2vec.{}'.format(FLAGS.embeddings)))
+        os.makedirs(outdir, exist_ok=True)
 
         for bench, indexes in data.items():
             padding = []
@@ -90,7 +91,7 @@ def execute(argv):
                     padding += list(embeddings[idx])
                 for i in range(len(indexes), max_length):
                     padding += list(embeddings[unk_idx])
-            filename = os.path.join(output_dir, bench)
+            filename = os.path.join(outdir, bench)
             np.savez_compressed(filename, values=padding)
 
     del embeddings

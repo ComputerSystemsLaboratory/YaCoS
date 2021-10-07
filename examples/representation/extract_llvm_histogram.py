@@ -135,15 +135,21 @@ def execute(argv):
     # Load data from all folders
     for folder in folders:
         # Create the output directory.
-        output_dir = '{}_llvm_histogram'.format(folder)
-        os.makedirs(output_dir, exist_ok=True)
+        outdir = os.path.join(folder.replace(FLAGS.dataset_directory,
+                              'llvm_histogram'))
+        os.makedirs(outdir, exist_ok=True)
 
         # Extract "ir2vec" from the file
         sources = glob.glob('{}/*.ll'.format(folder))
 
         for source in sources:
-            extractionInfo = builder.ir_to_info(source)
-            filename = source.replace(folder, output_dir)
+            try:
+                extractionInfo = builder.ir_to_info(source)
+            except Exception:
+                logging.error('Error {}.'.format(source))
+                continue
+
+            filename = source.replace(folder, outdir)
             filename = filename[:-3]
             np.savez_compressed(filename,
                                 values=program_representation(

@@ -161,6 +161,10 @@ class Inst2Vec:
 
         benchmarks_filename: str
         """
+        if not os.path.isabs(benchmarks_directory):
+            lg.error('Benchmarks directory is not an absolute directory')
+            sys.exit(1)
+
         Inst2Vec.__data_directory_ir = tempfile.mkdtemp(suffix='_ir')
 
         benchmarks = IO.load_yaml_or_fail(benchmarks_filename)
@@ -195,6 +199,10 @@ class Inst2Vec:
 
         benchmark: str
         """
+        if not os.path.isabs(benchmark_directory):
+            lg.error('Benchmark directory is not an absolute directory')
+            sys.exit(1)
+
         Inst2Vec.__data_directory_ir = tempfile.mkdtemp(suffix='_ir')
 
         index = benchmark.find('.')
@@ -256,6 +264,10 @@ class Inst2Vec:
         ------
         processed : dict {benchmark: embeddings}
         """
+        if not os.path.isabs(benchmarks_directory):
+            lg.error('Benchmarks directory is not an absolute directory')
+            sys.exit(1)
+
         # Verify what data to use
         if not embeddings_file:
             top_dir = os.path.join(os.environ.get('HOME'), '.local')

@@ -1,0 +1,77 @@
+BST:
+  seq:
+  - -mem2reg
+  - -jump-threading
+  - -instcombine
+  - -early-cse-memssa
+  - -jump-threading
+  - -licm
+  - -early-cse-memssa
+  - -sroa
+  - -simplifycfg
+  - -reassociate
+  - -instcombine
+  - -slp-vectorizer
+  - -early-cse-memssa
+SUM:
+  seq:
+  - -mem2reg
+  - -early-cse-memssa
+  - -correlated-propagation
+  - -instcombine
+  - -reassociate
+  - -simplifycfg
+  - -early-cse-memssa
+  - -instcombine
+  - -licm
+  - -jump-threading
+  - -simplifycfg
+  - -dse
+  - -reassociate
+  - -early-cse-memssa
+  - -instcombine
+LIM:
+  seq:
+  - -sroa
+  - -early-cse-memssa
+  - -reassociate
+  - -instcombine
+  - -simplifycfg
+  - -licm
+  - -speculative-execution
+  - -jump-threading
+  - -early-cse-memssa
+  - -simplifycfg
+  - -instcombine
+  - -simplifycfg
+GEO:
+  seq:
+  - -loop-vectorize
+  - -sroa
+  - -gvn
+  - -instcombine
+  - -simplifycfg
+  - -instcombine
+  - -licm
+  - -gvn
+  - -correlated-propagation
+  - -jump-threading
+  - -mldst-motion
+  - -early-cse-memssa
+  - -instcombine
+  - -simplifycfg
+  - -instsimplify
+CAP:
+  seq:
+  - -loop-rotate
+  - -sroa
+  - -correlated-propagation
+  - -indvars
+  - -gvn
+  - -tailcallelim
+  - -instcombine
+  - -jump-threading
+  - -reassociate
+  - -simplifycfg
+  - -instcombine
+  - -early-cse-memssa

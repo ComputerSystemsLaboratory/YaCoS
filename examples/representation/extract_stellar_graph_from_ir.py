@@ -92,10 +92,14 @@ def execute(argv):
         sources = glob.glob('{}/*.ll'.format(folder))
 
         for source in sources:
-            extractionInfo = builder.ir_to_info(source)
-            graph = builder.info_to_representation(extractionInfo,
-                                                   visitors[FLAGS.graph])
-            edges, nodes_data = extract_graph_data(graph, FLAGS.graph)
+            try:
+                extractionInfo = builder.ir_to_info(source)
+                graph = builder.info_to_representation(extractionInfo,
+                                                       visitors[FLAGS.graph])
+                edges, nodes_data = extract_graph_data(graph, FLAGS.graph)
+            except Exception:
+                logging.error('Error {}.'.format(source))
+                continue
 
             for feat, feat_data in nodes_data.items():
                 indexes = []

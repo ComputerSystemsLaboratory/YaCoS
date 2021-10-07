@@ -91,7 +91,12 @@ def execute(argv):
         llvm_opcodes[folder] = {}
         sources = glob.glob('{}/*.ll'.format(folder))
         for source in sources:
-            extractionInfo = builder.ir_to_info(source)
+            try:
+                extractionInfo = builder.ir_to_info(source)
+            except Exception:
+                logging.error('Error {}.'.format(source))
+                continue
+
             embeddings = program_representation(extractionInfo.functionInfos)
             bench_name = source.replace('{}/'.format(folder), '')
             bench_name = bench_name.replace('.ll', '')
@@ -105,15 +110,16 @@ def execute(argv):
 
     for folder, data in llvm_opcodes.items():
         # Create the output directory.
-        output_dir = '{}_llvm_opcodes'.format(folder)
-        os.makedirs(output_dir, exist_ok=True)
+        outdir = os.path.join(folder.replace(FLAGS.dataset_directory,
+                              'llvm_opcodes'))
+        os.makedirs(outdir, exist_ok=True)
 
         for bench, embeddings in data.items():
             padding_embeddings = embeddings
             for i in range(len(embeddings), max_length):
                 padding_embeddings.append(unknown)
 
-            filename = os.path.join(output_dir, bench)
+            filename = os.path.join(outdir, bench)
             np.savez_compressed(filename, values=padding_embeddings)
 
 

@@ -64,15 +64,21 @@ def execute(argv):
     # Load data from all folders
     for folder in folders:
         # Create the output directory.
-        output_dir = '{}_ir2vec'.format(folder)
-        os.makedirs(output_dir, exist_ok=True)
+        outdir = os.path.join(folder.replace(FLAGS.dataset_directory,
+                              'ir2vec.{}'.format(FLAGS.embeddings)))
+        os.makedirs(outdir, exist_ok=True)
 
         # Extract "ir2vec" from the file
         sources = glob.glob('{}/*.ll'.format(folder))
 
         for source in sources:
-            extractionInfo = builder.ir_to_info(source)
-            filename = source.replace(folder, output_dir)
+            try:
+                extractionInfo = builder.ir_to_info(source)
+            except Exception:
+                logging.error('Error {}.'.format(source))
+                continue
+
+            filename = source.replace(folder, outdir)
             filename = filename[:-3]
             if FLAGS.embeddings == 'program':
                 np.savez_compressed(filename,
