@@ -1146,16 +1146,16 @@ class Graph(object):
         """Return the adjacency matrix."""
         nodes_keys = list(self.__get_node_attr_dict().keys())
 
-        edges = []
+        row = []
+        col = []
+        data = []
         for node1, node2 in self.G.edges():
-            edges.append(
-                [
-                    nodes_keys.index(node1),
-                    nodes_keys.index(node2)
-                ]
-            )
+            row.append(nodes_keys.index(node1))
+            col.append(nodes_keys.index(node2))
+            data.append(1)
 
-        return csc_matrix(edges)
+        return coo_matrix((np.array(data), (np.array(row), np.array(col))),
+                          shape=(len(self.G), len(self.G)))
 
     def size(self):
         """Return the size of the graph."""

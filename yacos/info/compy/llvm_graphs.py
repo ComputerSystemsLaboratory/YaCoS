@@ -357,7 +357,7 @@ class LLVMCFGCallCompactVisitor(Visitor):
                     self.calls_bb[v] = v.callTarget
 
 
-class LLVMCFGCallCompactOneEdgeVisitor(Visitor):
+class LLVMCFGCallCompactSingleEdgeVisitor(Visitor):
     """Control-data Flow Graph + Call Visitor.
        Several instructions per basic block.
        Add only one edge."""
@@ -507,7 +507,7 @@ class LLVMCFGCallCompactNoRootVisitor(Visitor):
                     self.calls_bb[v] = v.callTarget
 
 
-class LLVMCFGCallCompactOneEdgeNoRootVisitor(Visitor):
+class LLVMCFGCallCompactSingleEdgeNoRootVisitor(Visitor):
     """Control-data Flow Graph + Call Visitor.
        Several instructions per basic block.
        This version has no root node."""
@@ -706,7 +706,7 @@ class LLVMCDFGCompactVisitor(Visitor):
                                     attr="data")
 
 
-class LLVMCDFGCompactOneEdgeVisitor(Visitor):
+class LLVMCDFGCompactSingleEdgeVisitor(Visitor):
     """Control-data Flow Graph Visitor.
        Several instructions per basic block."""
 
@@ -1037,7 +1037,7 @@ class LLVMCDFGCallCompactVisitor(Visitor):
                                     attr="data")
 
 
-class LLVMCDFGCallCompactOneEdgeVisitor(Visitor):
+class LLVMCDFGCallCompactSingleEdgeVisitor(Visitor):
     """Control-data Flow Graph + Call Visitor.
        Several instructions per basic block."""
 
@@ -1242,7 +1242,7 @@ class LLVMCDFGCallCompactNoRootVisitor(Visitor):
                                     attr="data")
 
 
-class LLVMCDFGCallCompactOneEdgeNoRootVisitor(Visitor):
+class LLVMCDFGCallCompactSingleEdgeNoRootVisitor(Visitor):
     """Control-data Flow Graph + Call Visitor.
        Several instructions per basic block.
        This version has no root node."""
