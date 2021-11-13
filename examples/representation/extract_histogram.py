@@ -25,7 +25,6 @@ limitations under the License.
 import os
 import sys
 import glob
-import random as rn
 import numpy as np
 
 from absl import app, flags, logging
@@ -36,28 +35,77 @@ from yacos.info.compy.extractors import LLVMDriver
 
 def program_representation(functionInfos):
     """Find program representation."""
-    embeddings = []
-    max_length = []
+    keys = ['ret',
+            'br',
+            'switch',
+            'indirectbr',
+            'invoke',
+            'callbr',
+            'resume',
+            'catchswitch',
+            'catchret',
+            'cleanupret',
+            'unreachable',
+            'fneg',
+            'add',
+            'fadd',
+            'sub',
+            'fsub',
+            'mul',
+            'fmul',
+            'udiv',
+            'sdiv',
+            'fdiv',
+            'urem',
+            'srem',
+            'frem',
+            'shl',
+            'lshr',
+            'ashr',
+            'and',
+            'or',
+            'xor',
+            'extractelement',
+            'insertelement',
+            'sufflevector',
+            'extractvalue',
+            'insertvalue',
+            'alloca',
+            'load',
+            'store',
+            'fence',
+            'cmpxchg',
+            'atomicrmw',
+            'getelementptr',
+            'trunc',
+            'zext',
+            'sext',
+            'fptrunc',
+            'fpext',
+            'fptoui',
+            'fptosi',
+            'uitofp',
+            'sitofp',
+            'ptrtoint',
+            'inttoptr',
+            'bitcast',
+            'addrspacecast',
+            'icmp',
+            'fcmp',
+            'phi',
+            'select',
+            'freeze',
+            'call',
+            'var_arg',
+            'landingpad',
+            'catchpad',
+            'cleanuppad']
+
+    values = []
     for data in functionInfos:
-        func_embeddings = []
-        for op in data.opcodes:
-            rn.seed(op)
-            func_embeddings.append(rn.random())
-        embeddings.append(func_embeddings)
-        max_length.append(len(func_embeddings))
+        values.append([data.instructions[key] for key in keys])
 
-    # Padding
-    rn.seed('unknown')
-    unknown = rn.random()
-    max_length = max(max_length)
-    padding_embeddings = []
-    for embedding in embeddings:
-        padding_embedding = embedding
-        for i in range(len(embedding), max_length):
-            padding_embedding.append(unknown)
-        padding_embeddings.append(padding_embedding)
-
-    return [sum(x) for x in zip(*padding_embeddings)]
+    return [sum(x) for x in zip(*values)]
 
 
 def execute(argv):
@@ -69,7 +117,7 @@ def execute(argv):
     # Instantiate the LLVM driver.
     driver = LLVMDriver([])
     # Instantiate the builder.
-    builder = R.LLVMOpcodesBuilder(driver)
+    builder = R.LLVMHistogramBuilder(driver)
 
     # Verify datset directory.
     if not os.path.isdir(FLAGS.dataset_directory):
@@ -84,12 +132,16 @@ def execute(argv):
                 if os.path.isdir(os.path.join(FLAGS.dataset_directory, subdir))
               ]
 
-    # Extract LLVM opcodes
-    llvm_opcodes = {}
-    max_length = []
+    # Load data from all folders
     for folder in folders:
-        llvm_opcodes[folder] = {}
+        # Create the output directory.
+        outdir = os.path.join(folder.replace(FLAGS.dataset_directory,
+                              'histogram'))
+        os.makedirs(outdir, exist_ok=True)
+
+        # Extract "ir2vec" from the file
         sources = glob.glob('{}/*.ll'.format(folder))
+
         for source in sources:
             try:
                 extractionInfo = builder.ir_to_info(source)
@@ -97,30 +149,12 @@ def execute(argv):
                 logging.error('Error {}.'.format(source))
                 continue
 
-            embeddings = program_representation(extractionInfo.functionInfos)
-            bench_name = source.replace('{}/'.format(folder), '')
-            bench_name = bench_name.replace('.ll', '')
-            llvm_opcodes[folder][bench_name] = embeddings
-            max_length.append(len(embeddings))
-
-    # Padding
-    rn.seed('unknown')
-    unknown = rn.random()
-    max_length = max(max_length)
-
-    for folder, data in llvm_opcodes.items():
-        # Create the output directory.
-        outdir = os.path.join(folder.replace(FLAGS.dataset_directory,
-                              'llvm_opcodes'))
-        os.makedirs(outdir, exist_ok=True)
-
-        for bench, embeddings in data.items():
-            padding_embeddings = embeddings
-            for i in range(len(embeddings), max_length):
-                padding_embeddings.append(unknown)
-
-            filename = os.path.join(outdir, bench)
-            np.savez_compressed(filename, values=padding_embeddings)
+            filename = source.replace(folder, outdir)
+            filename = filename[:-3]
+            np.savez_compressed(filename,
+                                values=program_representation(
+                                            extractionInfo.functionInfos
+                                       ))
 
 
 # Execute

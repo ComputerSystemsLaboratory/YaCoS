@@ -38,23 +38,40 @@ def extract(benchmark_dir,
             builder,
             graph_type):
     """Extract the representation from the source code."""
+
     # Define the visitor
-    visitors = {'programl': R.LLVMProGraMLVisitor,
-                'programlnoroot': R.LLVMProGraMLNoRootVisitor,
+    visitors = {
+                # Clang
+                'ast': R.ASTVisitor,
+                'ast_data': R.ASTDataVisitor,
+                'ast_data_cfg': R.ASTDataCFGVisitor,
+                # LLVM
+                # CFG
                 'cfg': R.LLVMCFGVisitor,
-                'cfgcompact': R.LLVMCFGCompactVisitor,
-                'cfgcall': R.LLVMCFGCallVisitor,
-                'cfgcallnoroot': R.LLVMCFGCallNoRootVisitor,
-                'cfgcallcompact': R.LLVMCFGCallCompactVisitor,
-                'cfgcallcompactnoroot': R.LLVMCFGCallCompactNoRootVisitor,
+                'cfg_compact': R.LLVMCFGCompactVisitor,
+                'cfg_call': R.LLVMCFGCallVisitor,
+                'cfg_call_nr': R.LLVMCFGCallNoRootVisitor,
+                'cfg_call_compact_me': R.LLVMCFGCallCompactMultipleEdgesVisitor,
+                'cfg_call_compact_se': R.LLVMCFGCallCompactSingleEdgeVisitor,
+                'cfg_call_compact_me_nr': R.LLVMCFGCallCompactMultipleEdgesNoRootVisitor,
+                'cfg_call_compact_se_nr': R.LLVMCFGCallCompactSingleEdgeNoRootVisitor,
+                # CDFG
                 'cdfg': R.LLVMCDFGVisitor,
-                'cdfgcompact': R.LLVMCDFGCompactVisitor,
-                'cdfgcall': R.LLVMCDFGCallVisitor,
-                'cdfgcallnoroot': R.LLVMCDFGCallNoRootVisitor,
-                'cdfgcallcompact': R.LLVMCDFGCallCompactVisitor,
-                'cdfgcallcompactnoroot': R.LLVMCDFGCallCompactNoRootVisitor,
-                'cdfgplus': R.LLVMCDFGPlusVisitor,
-                'cdfgplusnoroot': R.LLVMCDFGPlusNoRootVisitor}
+                'cdfg_compact_me': R.LLVMCDFGCallCompactMultipleEdgesVisitor,
+                'cdfg_compact_se': R.LLVMCDFGCallCompactSingleEdgeVisitor,
+                'cdfg_call': R.LLVMCDFGCallVisitor,
+                'cdfg_call_nr': R.LLVMCDFGCallNoRootVisitor,
+                'cdfg_call_compact_me': R.LLVMCDFGCallCompactMultipleEdgesVisitor,
+                'cdfg_call_compact_se': R.LLVMCDFGCallCompactSingleEdgeVisitor,
+                'cdfg_call_compact_me_nr': R.LLVMCDFGCallCompactMultipleEdgesNoRootVisitor,
+                'cdfg_call_compact_se_nr': R.LLVMCDFGCallCompactSingleEdgeNoRootVisitor,
+                # CDFG PLUS
+                'cdfg_plus': R.LLVMCDFGPlusVisitor,
+                'cdfg_plus_nr': R.LLVMCDFGPlusNoRootVisitor,
+                # PROGRAML
+                'programl': R.LLVMProGraMLVisitor,
+                'programl_nr': R.LLVMProGraMLNoRootVisitor
+                }
 
     # Compile de benchmark
     Engine.compile(benchmark_dir, 'opt', '-O0')
@@ -122,7 +139,7 @@ def execute(argv):
         # Extract the representation.
         representation = extract(benchmark_dir,
                                  builder,
-                                 FLAGS.representation)
+                                 FLAGS.graph)
 
         results_dir = os.path.join(FLAGS.results_directory,
                                    suite_name)
@@ -151,27 +168,41 @@ if __name__ == '__main__':
     flags.DEFINE_string('benchmarks_directory',
                         None,
                         'Benchmarks directory')
-    flags.DEFINE_enum('representation',
-                      'programl',
+    flags.DEFINE_enum('graph',
+                      'programl_nr',
                       [
-                        'programl',
-                        'programlnoroot',
-                        'cfg',
-                        'cfgcompact',
-                        'cfgcall',
-                        'cfgcallnoroot',
-                        'cfgcallcompact',
-                        'cfgcallcompactnoroot',
-                        'cdfg',
-                        'cdfgcompact',
-                        'cdfgcall',
-                        'cdfgcallnoroot',
-                        'cdfgcallcompact',
-                        'cdfgcallcompactnoroot',
-                        'cdfgplus',
-                        'cdfgplusnoroot'
+                      # Clang
+                      'ast',
+                      'ast_data',
+                      'ast_data_cfg',
+                      # LLVM
+                      # CFG
+                      'cfg',
+                      'cfg_compact',
+                      'cfg_call',
+                      'cfg_call_nr',
+                      'cfg_call_compact_me',
+                      'cfg_call_compact_se',
+                      'cfg_call_compact_me_nr',
+                      'cfg_call_compact_se_nr',
+                      # CDFG
+                      'cdfg',
+                      'cdfg_compact_me',
+                      'cdfg_compact_se',
+                      'cdfg_call',
+                      'cdfg_call_nr',
+                      'cdfg_call_compact_me',
+                      'cdfg_call_compact_se',
+                      'cdfg_call_compact_me_nr',
+                      'cdfg_call_compact_se_nr',
+                      # CDFG PLUS
+                      'cdfg_plus',
+                      'cdfg_plus_nr',
+                      # PROGRAML
+                      'programl',
+                      'programl_nr'
                       ],
-                      'Representation')
+                      'The type of the graph')
     flags.DEFINE_boolean('dot',
                          False,
                          'Save a dot file')

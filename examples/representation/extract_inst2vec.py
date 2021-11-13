@@ -72,25 +72,21 @@ def execute(argv):
     for folder, data in inst2vec.items():
         # Create the output directory.
         outdir = os.path.join(folder.replace(FLAGS.dataset_directory,
-                              'inst2vec.{}'.format(FLAGS.embeddings)))
+                              'inst2vec'))
         os.makedirs(outdir, exist_ok=True)
 
         for bench, indexes in data.items():
-            padding = []
-            if FLAGS.embeddings == 'lower':
-                for idx in indexes:
-                    padding.append(list(embeddings[idx]))
-                padding = [sum(x) for x in zip(*padding)]
-            elif FLAGS.embeddings == 'matrix2d':
-                for idx in indexes:
-                    padding.append(embeddings[idx])
-                for i in range(len(indexes), max_length):
-                    padding.append(embeddings[unk_idx])
-            elif FLAGS.embeddings == 'sequence':
-                for idx in indexes:
-                    padding += list(embeddings[idx])
-                for i in range(len(indexes), max_length):
-                    padding += list(embeddings[unk_idx])
+            if FLAGS.index:
+                padding = [idx for idx in indexes]
+                if FLAGS.padding:
+                    for i in range(len(indexes), max_length):
+                        padding.append(unk_idx)
+            else:
+                padding = [list(embeddings[idx]) for idx in indexes]
+                if FLAGS.padding:
+                    for i in range(len(indexes), max_length):
+                        padding += list(embeddings[unk_idx])
+
             filename = os.path.join(outdir, bench)
             np.savez_compressed(filename, values=padding)
 
@@ -103,10 +99,12 @@ if __name__ == '__main__':
     flags.DEFINE_string('dataset_directory',
                         None,
                         'Dataset directory')
-    flags.DEFINE_enum('embeddings',
-                      'lower',
-                      ['lower', 'matrix2d', 'sequence'],
-                      'Type of embeddings')
+    flags.DEFINE_boolean('index',
+                         False,
+                         'Extract only the indexes.')
+    flags.DEFINE_boolean('padding',
+                         False,
+                         'Padding the representation.')
     flags.mark_flag_as_required('dataset_directory')
 
     app.run(execute)

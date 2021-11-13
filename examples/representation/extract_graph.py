@@ -41,8 +41,6 @@ def extract_graph_data(graph, graph_type):
     if 'ast' in graph_type:
         nodes['w2v'] = graph.get_nodes_word2vec_embeddings('ast')
         nodes['boo'] = graph.get_nodes_bag_of_words_embeddings('ast')
-    elif 'asm' in graph_type:
-        nodes['boo'] = graph.get_nodes_bag_of_words_embeddings('ir')
     else:
         nodes['w2v'] = graph.get_nodes_word2vec_embeddings('ir')
         nodes['boo'] = graph.get_nodes_bag_of_words_embeddings('ir')
@@ -89,30 +87,34 @@ def execute(argv):
     visitors = {
                 # Clang
                 'ast': R.ASTVisitor,
-                'astdata': R.ASTDataVisitor,
-                'astdatacfg': R.ASTDataCFGVisitor,
+                'ast_data': R.ASTDataVisitor,
+                'ast_data_cfg': R.ASTDataCFGVisitor,
                 # LLVM
-                'programl': R.LLVMProGraMLVisitor,
-                'programlnoroot': R.LLVMProGraMLNoRootVisitor,
+                # CFG
                 'cfg': R.LLVMCFGVisitor,
-                'cfgcompact': R.LLVMCFGCompactVisitor,
-                'cfgcall': R.LLVMCFGCallVisitor,
-                'cfgcallnoroot': R.LLVMCFGCallNoRootVisitor,
-                'cfgcallcompact': R.LLVMCFGCallCompactVisitor,
-                'cfgcallcompact1e': R.LLVMCFGCallCompactOneEdgeVisitor,
-                'cfgcallcompactnoroot': R.LLVMCFGCallCompactNoRootVisitor,
-                'cfgcallcompact1enoroot': R.LLVMCFGCallCompactOneEdgeNoRootVisitor,
+                'cfg_compact': R.LLVMCFGCompactVisitor,
+                'cfg_call': R.LLVMCFGCallVisitor,
+                'cfg_call_nr': R.LLVMCFGCallNoRootVisitor,
+                'cfg_call_compact_me': R.LLVMCFGCallCompactMultipleEdgesVisitor,
+                'cfg_call_compact_se': R.LLVMCFGCallCompactSingleEdgeVisitor,
+                'cfg_call_compact_me_nr': R.LLVMCFGCallCompactMultipleEdgesNoRootVisitor,
+                'cfg_call_compact_se_nr': R.LLVMCFGCallCompactSingleEdgeNoRootVisitor,
+                # CDFG
                 'cdfg': R.LLVMCDFGVisitor,
-                'cdfgcompact': R.LLVMCDFGCompactVisitor,
-                'cdfgcompact1e': R.LLVMCDFGCompactOneEdgeVisitor,
-                'cdfgcall': R.LLVMCDFGCallVisitor,
-                'cdfgcallnoroot': R.LLVMCDFGCallNoRootVisitor,
-                'cdfgcallcompact': R.LLVMCDFGCallCompactVisitor,
-                'cdfgcallcompact1e': R.LLVMCDFGCallCompactOneEdgeVisitor,
-                'cdfgcallcompactnoroot': R.LLVMCDFGCallCompactNoRootVisitor,
-                'cdfgcallcompact1enoroot': R.LLVMCDFGCallCompactOneEdgeNoRootVisitor,
-                'cdfgplus': R.LLVMCDFGPlusVisitor,
-                'cdfgplusnoroot': R.LLVMCDFGPlusNoRootVisitor
+                'cdfg_compact_me': R.LLVMCDFGCallCompactMultipleEdgesVisitor,
+                'cdfg_compact_se': R.LLVMCDFGCallCompactSingleEdgeVisitor,
+                'cdfg_call': R.LLVMCDFGCallVisitor,
+                'cdfg_call_nr': R.LLVMCDFGCallNoRootVisitor,
+                'cdfg_call_compact_me': R.LLVMCDFGCallCompactMultipleEdgesVisitor,
+                'cdfg_call_compact_se': R.LLVMCDFGCallCompactSingleEdgeVisitor,
+                'cdfg_call_compact_me_nr': R.LLVMCDFGCallCompactMultipleEdgesNoRootVisitor,
+                'cdfg_call_compact_se_nr': R.LLVMCDFGCallCompactSingleEdgeNoRootVisitor,
+                # CDFG PLUS
+                'cdfg_plus': R.LLVMCDFGPlusVisitor,
+                'cdfg_plus_nr': R.LLVMCDFGPlusNoRootVisitor,
+                # PROGRAML
+                'programl': R.LLVMProGraMLVisitor,
+                'programl_nr': R.LLVMProGraMLNoRootVisitor
                 }
 
     folders = [
@@ -154,33 +156,38 @@ if __name__ == '__main__':
                         None,
                         'Dataset directory')
     flags.DEFINE_enum('graph',
-                      'cdfgcallcompactnoroot',
+                      'programl_nr',
                       [
-                        'ast',
-                        'astdata',
-                        'astdatacfg',
-                        'programl',
-                        'programlnoroot',
-                        'cfg',
-                        'cfgcompact',
-                        'cfgcall',
-                        'cfgcallnoroot',
-                        'cfgcallcompact',
-                        'cfgcallcompact1e',
-                        'cfgcallcompactnoroot',
-                        'cfgcallcompact1enoroot',
-                        'cdfg',
-                        'cdfgcompact',
-                        'cdfgcompact1e',
-                        'cdfgcall',
-                        'cdfgcallnoroot',
-                        'cdfgcallcompact',
-                        'cdfgcallcompact1e',
-                        'cdfgcallcompactnoroot',
-                        'cdfgcallcompact1enoroot',
-                        'cdfgplus',
-                        'cdfgplusnoroot',
-                        'asmcompact'
+                      # Clang
+                      'ast',
+                      'ast_data',
+                      'ast_data_cfg',
+                      # LLVM
+                      # CFG
+                      'cfg',
+                      'cfg_compact',
+                      'cfg_call',
+                      'cfg_call_nr',
+                      'cfg_call_compact_me',
+                      'cfg_call_compact_se',
+                      'cfg_call_compact_me_nr',
+                      'cfg_call_compact_se_nr',
+                      # CDFG
+                      'cdfg',
+                      'cdfg_compact_me',
+                      'cdfg_compact_se',
+                      'cdfg_call',
+                      'cdfg_call_nr',
+                      'cdfg_call_compact_me',
+                      'cdfg_call_compact_se',
+                      'cdfg_call_compact_me_nr',
+                      'cdfg_call_compact_se_nr',
+                      # CDFG PLUS
+                      'cdfg_plus',
+                      'cdfg_plus_nr',
+                      # PROGRAML
+                      'programl',
+                      'programl_nr'
                       ],
                       'The type of the graph')
 

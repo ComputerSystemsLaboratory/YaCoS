@@ -65,7 +65,7 @@ def execute(argv):
     for folder in folders:
         # Create the output directory.
         outdir = os.path.join(folder.replace(FLAGS.dataset_directory,
-                              'ir2vec.{}'.format(FLAGS.embeddings)))
+                              'ir2vec'))
         os.makedirs(outdir, exist_ok=True)
 
         # Extract "ir2vec" from the file
@@ -80,12 +80,8 @@ def execute(argv):
 
             filename = source.replace(folder, outdir)
             filename = filename[:-3]
-            if FLAGS.embeddings == 'program':
-                np.savez_compressed(filename,
-                                    values=extractionInfo.moduleInfo.ir2vec)
-            elif FLAGS.embeddings == 'instructions':
-                ir2vec[filename] = extractionInfo.instructionInfos
-                max_length.append(len(extractionInfo.instructionInfos))
+            np.savez_compressed(filename,
+                                values=extractionInfo.moduleInfo.ir2vec)
 
     if FLAGS.embeddings == 'instructions':
         # Padding
@@ -107,10 +103,6 @@ if __name__ == '__main__':
     flags.DEFINE_string('dataset_directory',
                         None,
                         'Dataset directory')
-    flags.DEFINE_enum('embeddings',
-                      'program',
-                      ['program', 'instructions'],
-                      'Type of embeddings')
     flags.mark_flag_as_required('dataset_directory')
 
     app.run(execute)

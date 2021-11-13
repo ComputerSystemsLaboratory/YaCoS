@@ -71,14 +71,26 @@ def execute(argv):
 
     # Define the visitor
     visitors = {
-        'programlnoroot': R.LLVMProGraMLNoRootVisitor,
-        'cfgcallnoroot': R.LLVMCFGCallNoRootVisitor,
-        'cfgcallcompactnoroot': R.LLVMCFGCallCompactNoRootVisitor,
-        'cfgcallcompact1enoroot': R.LLVMCFGCallCompactOneEdgeNoRootVisitor,
-        'cdfgcallnoroot': R.LLVMCDFGCallNoRootVisitor,
-        'cdfgcallcompactnoroot': R.LLVMCDFGCallCompactNoRootVisitor,
-        'cdfgcallcompact1enoroot': R.LLVMCDFGCallCompactOneEdgeNoRootVisitor,
-        'cdfgplusnoroot': R.LLVMCDFGPlusNoRootVisitor
+        # CFG
+        'cfg_call': R.LLVMCFGCallVisitor,
+        'cfg_call_nr': R.LLVMCFGCallNoRootVisitor,
+        'cfg_call_compact_me': R.LLVMCFGCallCompactMultipleEdgesVisitor,
+        'cfg_call_compact_se': R.LLVMCFGCallCompactSingleEdgeVisitor,
+        'cfg_call_compact_me_nr': R.LLVMCFGCallCompactMultipleEdgesNoRootVisitor,
+        'cfg_call_compact_se_nr': R.LLVMCFGCallCompactSingleEdgeNoRootVisitor,
+        # CDFG
+        'cdfg_call': R.LLVMCDFGCallVisitor,
+        'cdfg_call_nr': R.LLVMCDFGCallNoRootVisitor,
+        'cdfg_call_compact_me': R.LLVMCDFGCallCompactMultipleEdgesVisitor,
+        'cdfg_call_compact_se': R.LLVMCDFGCallCompactSingleEdgeVisitor,
+        'cdfg_call_compact_me_nr': R.LLVMCDFGCallCompactMultipleEdgesNoRootVisitor,
+        'cdfg_call_compact_se_nr': R.LLVMCDFGCallCompactSingleEdgeNoRootVisitor,
+        # CDFG PLUS
+        'cdfg_plus': R.LLVMCDFGPlusVisitor,
+        'cdfg_plus_nr': R.LLVMCDFGPlusNoRootVisitor,
+        # PROGRAML
+        'programl': R.LLVMProGraMLVisitor,
+        'programl_nr': R.LLVMProGraMLNoRootVisitor
     }
 
     folders = [
@@ -134,16 +146,28 @@ if __name__ == '__main__':
                         None,
                         'Dataset directory')
     flags.DEFINE_enum('graph',
-                      'cdfgcallcompactnoroot',
+                      'cdg_call',
                       [
-                        'programlnoroot',
-                        'cfgcallnoroot',
-                        'cfgcallcompactnoroot',
-                        'cfgcallcompact1enoroot',
-                        'cdfgcallnoroot',
-                        'cdfgcallcompactnoroot',
-                        'cdfgcallcompact1enoroot',
-                        'cdfgplusnoroot'
+                        # CFG
+                        'cfg_call',
+                        'cfg_call_nr',
+                        'cfg_call_compact_me',
+                        'cfg_call_compact_se',
+                        'cfg_call_compact_me_nr',
+                        'cfg_call_compact_se_nr',
+                        # CDFG
+                        'cdfg_call',
+                        'cdfg_call_nr',
+                        'cdfg_call_compact_me',
+                        'cdfg_call_compact_se',
+                        'cdfg_call_compact_me_nr',
+                        'cdfg_call_compact_se_nr',
+                        # CDFG PLUS
+                        'cdfg_plus',
+                        'cdfg_plus_nr',
+                        # PROGRAML
+                        'programl',
+                        'programl_nr'
                       ],
                       'The type of the graph')
     flags.mark_flag_as_required('dataset_directory')
