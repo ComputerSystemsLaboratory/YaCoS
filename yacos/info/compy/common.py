@@ -25,6 +25,7 @@ import networkx as nx
 import pygraphviz as pgv
 
 from absl import logging as lg
+from scipy.sparse import coo_matrix
 from gensim.models import Word2Vec, Doc2Vec
 from yacos.essential import IO
 from yacos.info.ncc.inst2vec import inst2vec_preprocess as i2v_pre

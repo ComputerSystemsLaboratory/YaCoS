@@ -30,7 +30,7 @@ import numpy as np
 from absl import app, flags, logging
 
 from yacos.info import compy as R
-from yacos.info.compy.extractors import ClangDriver, LLVMDriver
+from yacos.info.compy.extractors import LLVMDriver
 
 
 def extract_graph_data(graph, graph_type):
@@ -42,7 +42,7 @@ def extract_graph_data(graph, graph_type):
         nodes['word2vec'] = graph.get_nodes_word2vec_embeddings('ast')
         nodes['histogram'] = graph.get_nodes_histogram_embeddings('ast')
     else:
-        #nodes['word2vec'] = graph.get_nodes_word2vec_embeddings('ir')
+        # nodes['word2vec'] = graph.get_nodes_word2vec_embeddings('ir')
         nodes['histogram'] = graph.get_nodes_histogram_embeddings('ir')
         nodes['inst2vec'] = graph.get_nodes_inst2vec_embeddings()
         nodes['ir2vec'] = graph.get_nodes_ir2vec_embeddings()
@@ -67,29 +67,13 @@ def execute(argv):
 
     """Extract the representation from the source code."""
 
-    if FLAGS.graph in ['ast', 'astdata', 'astdatacfg']:
-        # Instantiate the Clang driver.
-        driver = ClangDriver(
-            ClangDriver.ProgrammingLanguage.C,
-            ClangDriver.OptimizationLevel.O0,
-            [],
-            ["-xcl"]
-        )
-        # Define the builder
-        builder = R.ASTGraphBuilder(driver)
-    else:
-        # Instantiate the LLVM driver.
-        driver = LLVMDriver()
-        # Define the builder
-        builder = R.LLVMGraphBuilder(driver)
+    # Instantiate the LLVM driver.
+    driver = LLVMDriver()
+    # Define the builder
+    builder = R.LLVMGraphBuilder(driver)
 
     # Define the visitor
     visitors = {
-                # Clang
-                'ast': R.ASTVisitor,
-                'ast_data': R.ASTDataVisitor,
-                'ast_data_cfg': R.ASTDataCFGVisitor,
-                # LLVM
                 # CFG
                 'cfg': R.LLVMCFGVisitor,
                 'cfg_compact': R.LLVMCFGCompactVisitor,
@@ -140,14 +124,10 @@ def execute(argv):
         for source in sources:
             # Extract "information" from the file
             # (data to construct the graph).
-            if FLAGS.graph == 'asmcompact':
-                print('not implemented yet')
-                sys.exit(1)
-            else:
-                extractionInfo = builder.ir_to_info(source)
-                # Build the graph.
-                graph = builder.info_to_representation(extractionInfo,
-                                                       visitors[FLAGS.graph])
+            extractionInfo = builder.ir_to_info(source)
+            # Build the graph.
+            graph = builder.info_to_representation(extractionInfo,
+                                                   visitors[FLAGS.graph])
             edges, nodes = extract_graph_data(graph, FLAGS.graph)
 
             filename = source.replace(folder, output_dir)
@@ -163,12 +143,7 @@ if __name__ == '__main__':
                         'Dataset directory')
     flags.DEFINE_enum('graph',
                       'programl_nr',
-                      [  # Clang
-                        'ast',
-                        'ast_data',
-                        'ast_data_cfg',
-                        # LLVM
-                        # CFG
+                      [  # CFG
                         'cfg',
                         'cfg_compact',
                         'cfg_call',
