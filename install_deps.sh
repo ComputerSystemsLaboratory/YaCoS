@@ -33,6 +33,7 @@ function install_yacos_data {
 function install_ir2vec {
   git clone https://github.com/IITH-Compilers/IR2Vec.git
   cd IR2Vec
+  git checkout llvm10
   mkdir build && cd build
   cmake -DLT_LLVM_INSTALL_DIR=/usr -DEigen3_DIR=/usr -DCMAKE_INSTALL_PREFIX=/usr ../src
   sudo make install

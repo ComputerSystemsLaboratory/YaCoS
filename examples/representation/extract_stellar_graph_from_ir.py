@@ -28,6 +28,8 @@ import glob
 import pandas as pd
 import pickle as pk
 
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+
 from stellargraph import StellarDiGraph
 from absl import app, flags, logging
 
@@ -38,8 +40,8 @@ from yacos.info.compy.extractors import LLVMDriver
 def extract_graph_data(graph, graph_type):
     """Extract edges, nodes and embeddings."""
     nodes = {}
-    nodes['word2vec'] = graph.get_nodes_word2vec_embeddings('ir')
-    nodes['bag_of_words'] = graph.get_nodes_bag_of_words_embeddings('ir')
+    #nodes['word2vec'] = graph.get_nodes_word2vec_embeddings('ir')
+    nodes['histogram'] = graph.get_nodes_histogram_embeddings('ir')
     nodes['inst2vec'] = graph.get_nodes_inst2vec_embeddings()
     nodes['ir2vec'] = graph.get_nodes_ir2vec_embeddings()
     nodes['opcode'] = graph.get_nodes_opcode_embeddings()
@@ -99,6 +101,9 @@ def execute(argv):
                 if os.path.isdir(os.path.join(FLAGS.dataset_directory, subdir))
               ]
 
+    idx = FLAGS.dataset_directory.rfind('/')
+    last_folder = FLAGS.dataset_directory[idx+1:]
+
     # Load data from all folders
     for folder in folders:
         sources = glob.glob('{}/*.ll'.format(folder))
@@ -125,8 +130,12 @@ def execute(argv):
                                        edges=edges,
                                        edge_type_column="type")
 
-                outdir = os.path.join(folder.replace(FLAGS.dataset_directory,
-                                      '{}/{}'.format(FLAGS.graph, feat)))
+                outdir = os.path.join(
+                    folder.replace(
+                        last_folder,
+                        '{}_{}_{}'.format(last_folder, FLAGS.graph, feat)
+                    )
+                )
 
                 os.makedirs(outdir, exist_ok=True)
 
@@ -146,7 +155,7 @@ if __name__ == '__main__':
                         None,
                         'Dataset directory')
     flags.DEFINE_enum('graph',
-                      'cdg_call',
+                      'cdfg_call',
                       [
                         # CFG
                         'cfg_call',

@@ -123,11 +123,15 @@ def execute(argv):
                 if os.path.isdir(os.path.join(FLAGS.dataset_directory, subdir))
               ]
 
+    idx = FLAGS.dataset_directory.rfind('/')
+    last_folder = FLAGS.dataset_directory[idx+1:]
+
     # Load data from all folders
     for folder in folders:
         # Create the output directory.
-        outdir = os.path.join(folder.replace(FLAGS.dataset_directory,
-                              'milepost'))
+        outdir = os.path.join(folder.replace(last_folder,
+                              '{}_milepost'.format(last_folder)))
+
         os.makedirs(outdir, exist_ok=True)
 
         # Extract "ir2vec" from the file

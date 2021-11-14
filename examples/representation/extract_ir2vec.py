@@ -57,15 +57,15 @@ def execute(argv):
                 if os.path.isdir(os.path.join(FLAGS.dataset_directory, subdir))
               ]
 
-    # Extract ir2vec
-    ir2vec = {}
-    max_length = []
+    idx = FLAGS.dataset_directory.rfind('/')
+    last_folder = FLAGS.dataset_directory[idx+1:]
 
     # Load data from all folders
     for folder in folders:
         # Create the output directory.
-        outdir = os.path.join(folder.replace(FLAGS.dataset_directory,
-                              'ir2vec'))
+        outdir = os.path.join(folder.replace(last_folder,
+                              '{}_ir2vec'.format(last_folder)))
+
         os.makedirs(outdir, exist_ok=True)
 
         # Extract "ir2vec" from the file
@@ -82,19 +82,6 @@ def execute(argv):
             filename = filename[:-3]
             np.savez_compressed(filename,
                                 values=extractionInfo.moduleInfo.ir2vec)
-
-    if FLAGS.embeddings == 'instructions':
-        # Padding
-        max_length = max(max_length)
-        unknown = np.zeros(300)
-
-        for filename, instructions in ir2vec.items():
-            padding = []
-            for instruction in instructions:
-                padding.append(instruction.ir2vec)
-            for i in range(len(instructions), max_length):
-                padding.append(unknown)
-            np.savez_compressed(filename, values=padding)
 
 
 # Execute

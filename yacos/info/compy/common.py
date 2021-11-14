@@ -26,7 +26,6 @@ import pygraphviz as pgv
 
 from absl import logging as lg
 from gensim.models import Word2Vec, Doc2Vec
-from scipy.sparse import csc_matrix
 from yacos.essential import IO
 from yacos.info.ncc.inst2vec import inst2vec_preprocess as i2v_pre
 
@@ -336,14 +335,14 @@ class Graph(object):
     __ir2vec_dictionary = None
     __ir2vec_embeddings = None
 
-    __boo_ast = None
-    __boo_ir = None
-    __boo_asm = None
+    __histogram_ast = None
+    __histogram_ir = None
+    __histogram_asm = None
 
     __w2v_dir = 'yacos/data/word2vec'
     __i2v_dir = 'yacos/data/inst2vec'
     __ir2v_dir = 'yacos/data/ir2vec'
-    __boo_dir = 'yacos/data/bag_of_words'
+    __histogram_dir = 'yacos/data/histogram'
 
     def __init__(self, graph, node_attrs, node_types, edge_types):
         """Initialize a Graph representation."""
@@ -432,41 +431,41 @@ class Graph(object):
             os.path.join(top_dir, self.__w2v_dir, MODEL)
         )
 
-    def __load_boo_ast(self):
+    def __load_histogram_ast(self):
         """Load bag of words (AST) dictionary."""
-        DICTIONARY = 'ast_bag_of_words.pickle'
+        DICTIONARY = 'ast_histogram.pickle'
 
         top_dir = os.path.join(os.environ.get('HOME'), '.local')
         if not os.path.isdir(os.path.join(top_dir, 'yacos')):
             lg.error('YaCoS data does not exist.')
             sys.exit(1)
 
-        filename = os.path.join(top_dir, self.__boo_dir, DICTIONARY)
-        self.__boo_ast = IO.load_pickle_or_fail(filename)
+        filename = os.path.join(top_dir, self.__histogram_dir, DICTIONARY)
+        self.__histogram_ast = IO.load_pickle_or_fail(filename)
 
-    def __load_boo_ir(self):
+    def __load_histogram_ir(self):
         """Load bag of words (LLVM  IR) dictionary."""
-        DICTIONARY = 'ir_bag_of_words.pickle'
+        DICTIONARY = 'ir_histogram.pickle'
 
         top_dir = os.path.join(os.environ.get('HOME'), '.local')
         if not os.path.isdir(os.path.join(top_dir, 'yacos')):
             lg.error('YaCoS data does not exist.')
             sys.exit(1)
 
-        filename = os.path.join(top_dir, self.__boo_dir, DICTIONARY)
-        self.__boo_ir = IO.load_pickle_or_fail(filename)
+        filename = os.path.join(top_dir, self.__histogram_dir, DICTIONARY)
+        self.__histogram_ir = IO.load_pickle_or_fail(filename)
 
-    def __load_boo_asm(self):
+    def __load_histogram_asm(self):
         """Load bag of words (Assembly) dictionary."""
-        DICTIONARY = 'asm_bag_of_words.pickle'
+        DICTIONARY = 'asm_histogram.pickle'
 
         top_dir = os.path.join(os.environ.get('HOME'), '.local')
         if not os.path.isdir(os.path.join(top_dir, 'yacos')):
             lg.error('YaCoS data does not exist.')
             sys.exit(1)
 
-        filename = os.path.join(top_dir, self.__boo_dir, DICTIONARY)
-        self.__boo_asm = IO.load_pickle_or_fail(filename)
+        filename = os.path.join(top_dir, self.__histogram_dir, DICTIONARY)
+        self.__histogram_asm = IO.load_pickle_or_fail(filename)
 
     def __get_node_attr_dict(self):
         """Return the node attributes."""
@@ -615,29 +614,29 @@ class Graph(object):
 
         return nodes
 
-    def get_nodes_bag_of_words_embeddings(self,
+    def get_nodes_histogram_embeddings(self,
                                           graph_type='ir',
                                           compact=False,
                                           type_name=False):
         """Return the nodes embeddings (bag of words)."""
         if graph_type == 'ast':
-            if not self.__boo_ast:
-                self.__load_boo_ast()
-            boo = self.__boo_ast
+            if not self.__histogram_ast:
+                self.__load_histogram_ast()
+            histogram = self.__histogram_ast
         elif graph_type == 'asm':
-            if not self.__boo_asm:
-                self.__load_boo_asm()
-            boo = self.__boo_asm
+            if not self.__histogram_asm:
+                self.__load_histogram_asm()
+            histogram = self.__histogram_asm
         elif graph_type == 'ir':
-            if not self.__boo_ir:
-                self.__load_boo_ir()
-            boo = self.__boo_ir
+            if not self.__histogram_ir:
+                self.__load_histogram_ir()
+            histogram = self.__histogram_ir
         else:
-            lg.error('Boo type does not exist.')
+            lg.error('histogram type does not exist.')
             sys.exit(1)
 
         """
-        bag_of_words.pickle
+        histogram.pickle
 
         classes:
           terminator: 0
@@ -659,42 +658,42 @@ class Graph(object):
         nodes = []
         for (n, data) in self.G.nodes(data=True):
             if compact:
-                embeddings = [0 for _ in range(len(boo['classes']))]
+                embeddings = [0 for _ in range(len(histogram['classes']))]
             else:
-                embeddings = [0 for _ in range(len(boo['instructions']))]
+                embeddings = [0 for _ in range(len(histogram['instructions']))]
 
             type = data["type"]
             if type == "root":
                 if compact:
-                    embeddings[boo['instructions']['magic']['class']] += 1
+                    embeddings[histogram['instructions']['magic']['class']] += 1
                 else:
-                    embeddings[boo['instructions']['magic']['pos']] += 1
+                    embeddings[histogram['instructions']['magic']['pos']] += 1
             elif type == "cdfgplusbb":
                 if compact:
-                    embeddings[boo['instructions']['bb']['class']] += 1
+                    embeddings[histogram['instructions']['bb']['class']] += 1
                 else:
-                    embeddings[boo['instructions']['bb']['pos']] += 1
+                    embeddings[histogram['instructions']['bb']['pos']] += 1
             elif type == "insn" or type == "bb":
                 if compact:
                     for opcode in data['opcodes']:
-                        embeddings[boo['instructions'][opcode]['class']] += 1
+                        embeddings[histogram['instructions'][opcode]['class']] += 1
                 else:
                     for opcode in data['opcodes']:
-                        embeddings[boo['instructions'][opcode]['pos']] += 1
+                        embeddings[histogram['instructions'][opcode]['pos']] += 1
             elif type == "id" or type == "data":
                 if compact:
                     embeddings[
-                                boo['instructions']['identifier']['class']
+                                histogram['instructions']['identifier']['class']
                               ] += 1
                 else:
                     embeddings[
-                                boo['instructions']['identifier']['pos']
+                                histogram['instructions']['identifier']['pos']
                               ] += 1
             elif type == "imm":
                 if compact:
-                    embeddings[boo['instructions']['immediate']['class']] += 1
+                    embeddings[histogram['instructions']['immediate']['class']] += 1
                 else:
-                    embeddings[boo['instructions']['immediate']['pos']] += 1
+                    embeddings[histogram['instructions']['immediate']['pos']] += 1
             else:
                 lg.error("Node type ({}) does not exist.".format(type))
                 sys.exit(1)
@@ -1018,7 +1017,7 @@ class Graph(object):
 
         return edges
 
-    def get_edge_list_bag_of_words_embeddings(self):
+    def get_edge_list_histogram_embeddings(self):
         """Return the nodes embeddings (bag of words)."""
         nodes_keys = list(self.__get_node_attr_dict().keys())
 
@@ -1130,7 +1129,7 @@ class Graph(object):
 
         return edges
 
-    def get_edges_bag_of_words_embeddings(self):
+    def get_edges_histogram_embeddings(self):
         """Return the nodes embeddings (bag of words)."""
         edges = []
         for _, _, data in self.G.edges(data=True):

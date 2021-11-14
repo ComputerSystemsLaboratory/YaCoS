@@ -39,13 +39,13 @@ def extract_graph_data(graph, graph_type):
     nodes = {}
 
     if 'ast' in graph_type:
-        nodes['w2v'] = graph.get_nodes_word2vec_embeddings('ast')
-        nodes['boo'] = graph.get_nodes_bag_of_words_embeddings('ast')
+        nodes['word2vec'] = graph.get_nodes_word2vec_embeddings('ast')
+        nodes['histogram'] = graph.get_nodes_histogram_embeddings('ast')
     else:
-        nodes['w2v'] = graph.get_nodes_word2vec_embeddings('ir')
-        nodes['boo'] = graph.get_nodes_bag_of_words_embeddings('ir')
-        nodes['i2v'] = graph.get_nodes_inst2vec_embeddings()
-        nodes['ir2v'] = graph.get_nodes_ir2vec_embeddings()
+        #nodes['word2vec'] = graph.get_nodes_word2vec_embeddings('ir')
+        nodes['histogram'] = graph.get_nodes_histogram_embeddings('ir')
+        nodes['inst2vec'] = graph.get_nodes_inst2vec_embeddings()
+        nodes['ir2vec'] = graph.get_nodes_ir2vec_embeddings()
 
     edges = graph.get_edges_str_dataFrame()
 
@@ -123,12 +123,18 @@ def execute(argv):
                 if os.path.isdir(os.path.join(FLAGS.dataset_directory, subdir))
               ]
 
+    idx = FLAGS.dataset_directory.rfind('/')
+    last_folder = FLAGS.dataset_directory[idx+1:]
+
     # Load data from all folders
     for folder in folders:
         sources = glob.glob('{}/*.ll'.format(folder))
 
         # Create the output directory.
-        output_dir = '{}_{}'.format(folder, FLAGS.graph)
+        output_dir = os.path.join(folder.replace(last_folder,
+                                                 '{}_{}'.format(last_folder,
+                                                                FLAGS.graph)))
+
         os.makedirs(output_dir, exist_ok=True)
 
         for source in sources:
@@ -157,37 +163,36 @@ if __name__ == '__main__':
                         'Dataset directory')
     flags.DEFINE_enum('graph',
                       'programl_nr',
-                      [
-                      # Clang
-                      'ast',
-                      'ast_data',
-                      'ast_data_cfg',
-                      # LLVM
-                      # CFG
-                      'cfg',
-                      'cfg_compact',
-                      'cfg_call',
-                      'cfg_call_nr',
-                      'cfg_call_compact_me',
-                      'cfg_call_compact_se',
-                      'cfg_call_compact_me_nr',
-                      'cfg_call_compact_se_nr',
-                      # CDFG
-                      'cdfg',
-                      'cdfg_compact_me',
-                      'cdfg_compact_se',
-                      'cdfg_call',
-                      'cdfg_call_nr',
-                      'cdfg_call_compact_me',
-                      'cdfg_call_compact_se',
-                      'cdfg_call_compact_me_nr',
-                      'cdfg_call_compact_se_nr',
-                      # CDFG PLUS
-                      'cdfg_plus',
-                      'cdfg_plus_nr',
-                      # PROGRAML
-                      'programl',
-                      'programl_nr'
+                      [  # Clang
+                        'ast',
+                        'ast_data',
+                        'ast_data_cfg',
+                        # LLVM
+                        # CFG
+                        'cfg',
+                        'cfg_compact',
+                        'cfg_call',
+                        'cfg_call_nr',
+                        'cfg_call_compact_me',
+                        'cfg_call_compact_se',
+                        'cfg_call_compact_me_nr',
+                        'cfg_call_compact_se_nr',
+                        # CDFG
+                        'cdfg',
+                        'cdfg_compact_me',
+                        'cdfg_compact_se',
+                        'cdfg_call',
+                        'cdfg_call_nr',
+                        'cdfg_call_compact_me',
+                        'cdfg_call_compact_se',
+                        'cdfg_call_compact_me_nr',
+                        'cdfg_call_compact_se_nr',
+                        # CDFG PLUS
+                        'cdfg_plus',
+                        'cdfg_plus_nr',
+                        # PROGRAML
+                        'programl',
+                        'programl_nr'
                       ],
                       'The type of the graph')
 

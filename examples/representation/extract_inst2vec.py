@@ -50,6 +50,9 @@ def execute(argv):
                 if os.path.isdir(os.path.join(FLAGS.dataset_directory, subdir))
               ]
 
+    idx = FLAGS.dataset_directory.rfind('/')
+    last_folder = FLAGS.dataset_directory[idx+1:]
+
     # Extract int2vec
     inst2vec = {}
     max_length = []
@@ -71,8 +74,9 @@ def execute(argv):
 
     for folder, data in inst2vec.items():
         # Create the output directory.
-        outdir = os.path.join(folder.replace(FLAGS.dataset_directory,
-                              'inst2vec'))
+        outdir = os.path.join(folder.replace(last_folder,
+                              '{}_inst2vec'.format(last_folder)))
+
         os.makedirs(outdir, exist_ok=True)
 
         for bench, indexes in data.items():
