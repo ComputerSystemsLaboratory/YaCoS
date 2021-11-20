@@ -1186,7 +1186,7 @@ class Graph(object):
         """Return the adjacency matrix."""
         nodes_keys = list(self.__get_node_attr_dict().keys())
 
-        adj = np.zeros((len(self.G), len(self.G)))
+        adj = np.zeros((len(self.G), len(self.G)), dtype=np.int)
         for node1, node2 in self.G.edges():
             adj[nodes_keys.index(node1)][nodes_keys.index(node2)] += 1
 
