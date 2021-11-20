@@ -496,6 +496,7 @@ class Graph(object):
             self.__load_inst2vec_data()
 
         nodes = []
+
         for (n, data) in self.G.nodes(data=True):
             type = data["type"]
             if type == "root":
@@ -1025,7 +1026,7 @@ class Graph(object):
         edges = []
         for node1, node2, data in self.G.edges(data=True):
             edge_type = self.__edge_types.index(data["attr"])
-            emb = [0 for _ in range(0, 7)]
+            emb = [0 for _ in len(self.__edge_types)]
             emb[edge_type] = 1
 
             edges.append(
@@ -1050,24 +1051,39 @@ class Graph(object):
             6: np.array([1.50])
         }
 
-        edges = []
-        for _, _, data in self.G.edges(data=True):
+        nodes_keys = list(self.__get_node_attr_dict().keys())
+
+        row = []
+        col = []
+        edge_features = []
+        for node1, node2, data in self.G.edges(data=True):
+            row.append(nodes_keys.index(node1))
+            col.append(nodes_keys.index(node2))
+
             edge_type = self.__edge_types.index(data["attr"])
-            edges.append(
+            edge_features.append(
                 emb[edge_type] if edge_type in emb else np.array([1.75])
             )
 
-        return edges
+        edge_index = np.array((row, col)).T
+        return edge_index, edge_features
 
     def get_edges_inst2vec_embeddings(self):
         """Return the edges and inst2vec embeddings."""
         if not self.__inst2vec_dictionary:
             self.__load_ir2vec_data()
 
-        edges = []
-        for _, _, data in self.G.edges(data=True):
+        nodes_keys = list(self.__get_node_attr_dict().keys())
+
+        row = []
+        col = []
+        edge_features = []
+        for node1, node2, data in self.G.edges(data=True):
+            row.append(nodes_keys.index(node1))
+            col.append(nodes_keys.index(node2))
+
             edge_type = '!E{}'.format(data["attr"].upper())
-            edges.append(
+            edge_features.append(
                 self.__inst2vec_embeddings[
                     self.__inst2vec_dictionary[edge_type]
                 ]
@@ -1077,17 +1093,25 @@ class Graph(object):
                      ]
             )
 
-        return edges
+        edge_index = np.array((row, col)).T
+        return edge_index, edge_features
 
     def get_edges_ir2vec_embeddings(self):
         """Return the edges and ir2vec embeddings."""
         if not self.__ir2vec_dictionary:
             self.__load_ir2vec_data()
 
-        edges = []
-        for _, _, data in self.G.edges(data=True):
+        nodes_keys = list(self.__get_node_attr_dict().keys())
+
+        row = []
+        col = []
+        edge_features = []
+        for node1, node2, data in self.G.edges(data=True):
+            row.append(nodes_keys.index(node1))
+            col.append(nodes_keys.index(node2))
+
             edge_type = '!E{}'.format(data["attr"].upper())
-            edges.append(
+            edge_features.append(
                 self.__ir2vec_embeddings[
                     self.__ir2vec_dictionary[edge_type]
                 ]
@@ -1097,7 +1121,8 @@ class Graph(object):
                      ]
             )
 
-        return edges
+        edge_index = np.array((row, col)).T
+        return edge_index, edge_features
 
     def get_edges_word2vec_embeddings(self,
                                       graph_type='ir',
@@ -1119,43 +1144,53 @@ class Graph(object):
             lg.error('Graph_type does not exist.')
             sys.exit(1)
 
-        edges = []
-        for _, _, data in self.G.edges(data=True):
+        nodes_keys = list(self.__get_node_attr_dict().keys())
+
+        row = []
+        col = []
+        edge_features = []
+        for node1, node2, data in self.G.edges(data=True):
+            row.append(nodes_keys.index(node1))
+            col.append(nodes_keys.index(node2))
+
             edge_type = 'e{}'.format(data["attr"].lower())
-            edges.append(
+            edge_features.append(
                     model.wv[edge_type]
                     if edge_type in model.wv.vocab
                     else model.wv['eunk']
             )
 
-        return edges
+        edge_index = np.array((row, col)).T
+        return edge_index, edge_features
 
     def get_edges_histogram_embeddings(self):
         """Return the nodes embeddings (bag of words)."""
-        edges = []
-        for _, _, data in self.G.edges(data=True):
-            edge_type = self.__edge_types.index(data["attr"])
-            emb = [0 for _ in range(0, 7)]
-            emb[edge_type] = 1
+        nodes_keys = list(self.__get_node_attr_dict().keys())
 
-            edges.append(emb)
+        row = []
+        col = []
+        edge_features = []
+        for node1, node2, data in self.G.edges(data=True):
+            row.append(nodes_keys.index(node1))
+            col.append(nodes_keys.index(node2))
 
-        return edges
+            histogram = np.zeros(len(self.__edge_types))
+            histogram[self.__edge_types.index(data["attr"])] = 1
+
+            edge_features.append(histogram)
+
+        edge_index = np.array((row, col)).T
+        return edge_index, edge_features
 
     def get_adjacency_matrix(self):
         """Return the adjacency matrix."""
         nodes_keys = list(self.__get_node_attr_dict().keys())
 
-        row = []
-        col = []
-        data = []
+        adj = np.zeros((len(self.G), len(self.G)))
         for node1, node2 in self.G.edges():
-            row.append(nodes_keys.index(node1))
-            col.append(nodes_keys.index(node2))
-            data.append(1)
+            adj[nodes_keys.index(node1)][nodes_keys.index(node2)] += 1
 
-        return coo_matrix((np.array(data), (np.array(row), np.array(col))),
-                          shape=(len(self.G), len(self.G)))
+        return adj
 
     def size(self):
         """Return the size of the graph."""

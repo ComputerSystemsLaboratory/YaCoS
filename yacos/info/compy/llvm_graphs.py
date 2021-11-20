@@ -37,11 +37,11 @@ def find_node(G, attr):
 
 def is_one_edge(visitor):
     """Verify the visitor."""
-    return (isinstance(visitor, LLVMCFGCallCompactOneEdgeVisitor)
-            or isinstance(visitor, LLVMCFGCallCompactOneEdgeNoRootVisitor)
-            or isinstance(visitor, LLVMCDFGCompactOneEdgeVisitor)
-            or isinstance(visitor, LLVMCDFGCallCompactOneEdgeVisitor)
-            or isinstance(visitor, LLVMCDFGCallCompactOneEdgeNoRootVisitor))
+    return (isinstance(visitor, LLVMCFGCallCompactSingleEdgeVisitor)
+            or isinstance(visitor, LLVMCFGCallCompactSingleEdgeNoRootVisitor)
+            or isinstance(visitor, LLVMCDFGCompactSingleEdgeVisitor)
+            or isinstance(visitor, LLVMCDFGCallCompactSingleEdgeVisitor)
+            or isinstance(visitor, LLVMCDFGCallCompactSingleEdgeNoRootVisitor))
 
 
 def has_edge(G, edge1, edge2, attr):
