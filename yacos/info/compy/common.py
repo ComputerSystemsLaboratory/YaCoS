@@ -1066,7 +1066,7 @@ class Graph(object):
             )
 
         edge_index = np.array((row, col)).T
-        return edge_index, edge_features
+        return edge_index, np.array(edge_features)
 
     def get_edges_inst2vec_embeddings(self):
         """Return the edges and inst2vec embeddings."""
@@ -1094,7 +1094,7 @@ class Graph(object):
             )
 
         edge_index = np.array((row, col)).T
-        return edge_index, edge_features
+        return edge_index, np.array(edge_features)
 
     def get_edges_ir2vec_embeddings(self):
         """Return the edges and ir2vec embeddings."""
@@ -1122,7 +1122,7 @@ class Graph(object):
             )
 
         edge_index = np.array((row, col)).T
-        return edge_index, edge_features
+        return edge_index, np.array(edge_features)
 
     def get_edges_word2vec_embeddings(self,
                                       graph_type='ir',
@@ -1161,7 +1161,7 @@ class Graph(object):
             )
 
         edge_index = np.array((row, col)).T
-        return edge_index, edge_features
+        return edge_index, np.array(edge_features)
 
     def get_edges_histogram_embeddings(self):
         """Return the nodes embeddings (bag of words)."""
@@ -1174,13 +1174,13 @@ class Graph(object):
             row.append(nodes_keys.index(node1))
             col.append(nodes_keys.index(node2))
 
-            histogram = np.zeros(len(self.__edge_types))
+            histogram = [0 for _ in range(len(self.__edge_types))]
             histogram[self.__edge_types.index(data["attr"])] = 1
 
             edge_features.append(histogram)
 
         edge_index = np.array((row, col)).T
-        return edge_index, edge_features
+        return edge_index, np.array(edge_features)
 
     def get_adjacency_matrix(self):
         """Return the adjacency matrix."""
