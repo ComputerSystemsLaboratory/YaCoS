@@ -39,8 +39,9 @@ def prepare_node_features(nodes_embeddings):
     """Extract the node features."""
     features = {idx:feat for (idx, _, feat) in nodes_embeddings}
 
-    return np.array([features[key] for key in sorted(features.keys())])
-    
+    return np.array([features[key] for key in sorted(features.keys())], dtype=np.float)
+
+
 def extract_graph_data(graph, graph_type):
     """Extract edges, nodes and embeddings."""
 
@@ -57,6 +58,7 @@ def extract_graph_data(graph, graph_type):
     e = reorder(edge_index, edge_features=edge_features)
 
     return a, x, e[1]
+
 
 def execute(argv):
     """Extract a graph representation."""
@@ -127,7 +129,7 @@ def execute(argv):
 
             idx = folder.rfind('/')
             label = folder[idx+1:]
-    
+
             y = [0 for _ in range(len(folders))]
             y[int(label)] = 1
 
@@ -143,7 +145,7 @@ def execute(argv):
                                 x_opcode=x['opcode'],
                                 e=e,
                                 y=y)
-            
+
 
 # Execute
 if __name__ == '__main__':
