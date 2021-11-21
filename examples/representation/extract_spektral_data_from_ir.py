@@ -110,7 +110,7 @@ def execute(argv):
                 if os.path.isdir(os.path.join(FLAGS.dataset_directory, subdir))
               ]
 
-    outdir = '{}_spektral'.format(FLAGS.dataset_directory)
+    outdir = '{}_spektral_{}'.format(FLAGS.dataset_directory, FLAGS.graph)
     os.makedirs(outdir, exist_ok=True)
 
     # Load data from all folders
