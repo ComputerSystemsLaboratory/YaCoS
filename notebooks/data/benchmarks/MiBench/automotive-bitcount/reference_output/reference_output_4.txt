@@ -1,0 +1,9 @@
+Bit counter algorithm benchmark
+
+Optimized 1 bit/loop counter          > Bits: 3418026288
+Ratko's mystery algorithm             > Bits: 3418028139
+Recursive bit count by nybbles        > Bits: 3418030167
+Non-recursive bit count by nybbles    > Bits: 3418015660
+Non-recursive bit count by bytes (BW) > Bits: 3418021098
+Non-recursive bit count by bytes (AR) > Bits: 3418019760
+Shift and count bits                  > Bits: 3418029993

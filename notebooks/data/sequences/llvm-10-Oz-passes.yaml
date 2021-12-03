@@ -1,0 +1,237 @@
+1:
+  description: Target Library Information
+  pass: -targetlibinfo
+2:
+  description: Target Transform Information
+  pass: -tti
+3:
+  description: Type-Based Alias Analysis
+  pass: -tbaa
+4:
+  description: Scoped NoAlias Alias Analysis
+  pass: -scoped-noalias
+5:
+  description: Assumption Cache Tracker
+  pass: -assumption-cache-tracker
+6:
+  description: Profile summary info
+  pass: -profile-summary-info
+7:
+  description: Force set function attributes
+  pass: -forceattrs
+8:
+  description: Infer set function attributes
+  pass: -inferattrs
+9:
+  description: Interprocedural Sparse Conditional Constant Propagation
+  pass: -ipsccp
+10:
+  description: Called Value Propagation
+  pass: -called-value-propagation
+11:
+  description: Deduce and propagate attributes
+  pass: -attributor
+12:
+  description: Global Variable Optimizer
+  pass: -globalopt
+13:
+  description: Dominator Tree Construction
+  pass: -domtree
+14:
+  description: Promote Memory to Register
+  pass: -mem2reg
+15:
+  description: Dead Argument Elimination
+  pass: -deadargelim
+16:
+  description: Basic Alias Analysis (stateless AA impl)
+  pass: -basicaa
+17:
+  description: Function Alias Analysis Results
+  pass: -aa
+18:
+  description: Natural Loop Information
+  pass: -loops
+19:
+  description: Lazy Branch Probability Analysis
+  pass: -lazy-branch-prob
+20:
+  description: Lazy Block Frequency Analysis
+  pass: -lazy-block-freq
+21:
+  description: Optimization Remark Emitter
+  pass: -opt-remark-emitter
+22:
+  description: Combine redundant instructions
+  pass: -instcombine
+23:
+  description: Simplify the CFG
+  pass: -simplifycfg
+24:
+  description: CallGraph Construction
+  pass: -basiccg
+25:
+  description: Globals Alias Analysis
+  pass: -globals-aa
+26:
+  description: Remove unused exception handling info
+  pass: -prune-eh
+27:
+  description: Function Integration/Inlining
+  pass: -inline
+28:
+  description: Deduce function attributes
+  pass: -functionattrs
+29:
+  description: Scalar Replacement Of Aggregates
+  pass: -sroa
+30:
+  description: Memory SSA
+  pass: -memoryssa
+31:
+  description: Early CSE w/ MemorySSA
+  pass: -early-cse-memssa
+32:
+  description: Speculatively execute instructions
+  pass: -speculative-execution
+33:
+  description: Lazy Value Information Analysis
+  pass: -lazy-value-info
+34:
+  description: Jump Threading
+  pass: -jump-threading
+35:
+  description: Value Propagation
+  pass: -correlated-propagation
+36:
+  description: Tail Call Elimination
+  pass: -tailcallelim
+37:
+  description: Reassociate expressions
+  pass: -reassociate
+38:
+  description: Canonicalize natural loops
+  pass: -loop-simplify
+39:
+  description: LCSSA Verifier
+  pass: -lcssa-verification
+40:
+  description: Loop-Closed SSA Form Pass
+  pass: -lcssa
+41:
+  description: Scalar Evolution Analysis
+  pass: -scalar-evolution
+42:
+  description: Rotate Loops
+  pass: -loop-rotate
+43:
+  description: Loop Invariant Code Motion
+  pass: -licm
+44:
+  description: Unswitch loops
+  pass: -loop-unswitch
+45:
+  description: Induction Variable Simplification
+  pass: -indvars
+46:
+  description: Recognize loop idioms
+  pass: -loop-idiom
+47:
+  description: Delete dead loops
+  pass: -loop-deletion
+48:
+  description: Unroll loops
+  pass: -loop-unroll
+49:
+  description: MergedLoadStoreMotion
+  pass: -mldst-motion
+50:
+  description: Phi Values Analysis
+  pass: -phi-values
+51:
+  description: Memory Dependence Analysis
+  pass: -memdep
+52:
+  description: Global Value Numbering
+  pass: -gvn
+53:
+  description: MemCpy Optimization
+  pass: -memcpyopt
+54:
+  description: Sparse Conditional Constant Propagation
+  pass: -sccp
+55:
+  description: Demanded bits analysis
+  pass: -demanded-bits
+56:
+  description: Bit-Tracking Dead Code Elimination
+  pass: -bdce
+57:
+  description: Dead Store Elimination
+  pass: -dse
+58:
+  description: Post-Dominator Tree Construction
+  pass: -postdomtree
+59:
+  description: Aggressive Dead Code Elimination
+  pass: -adce
+60:
+  description: A No-Op Barrier Pass
+  pass: -barrier
+61:
+  description: Eliminate Available Externally Globals
+  pass: -elim-avail-extern
+62:
+  description: Deduce function attributes in RPO
+  pass: -rpo-functionattrs
+63:
+  description: Dead Global Elimination
+  pass: -globaldce
+64:
+  description: Float to int
+  pass: -float2int
+65:
+  description: Lower constant intrinsics
+  pass: -lower-constant-intrinsics
+66:
+  description: Loop Access Analysis
+  pass: -loop-accesses
+67:
+  description: Loop Distribution
+  pass: -loop-distribute
+68:
+  description: Branch Probability Analysis
+  pass: -branch-prob
+69:
+  description: Block Frequency Analysis
+  pass: -block-freq
+70:
+  description: Loop Vectorization
+  pass: -loop-vectorize
+71:
+  description: Loop Load Elimination
+  pass: -loop-load-elim
+72:
+  description: Warn about non-applied transformations
+  pass: -transform-warning
+73:
+  description: Alignment from assumptions
+  pass: -alignment-from-assumptions
+74:
+  description: Strip Unused Function Prototypes
+  pass: -strip-dead-prototypes
+75:
+  description: Merge Duplicate Global Constants
+  pass: -constmerge
+76:
+  description: Loop Sink
+  pass: -loop-sink
+77:
+  description: Remove redundant instructions
+  pass: -instsimplify
+78:
+  description: Hoist/decompose integer division and remainder
+  pass: -div-rem-pairs
+79:
+  description: Module Verifier
+  pass: -verify
