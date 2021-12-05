@@ -34,24 +34,6 @@ class Prog2Image:
     __version__ = '2.0.0'
 
     @staticmethod
-    def compile_and_extract_benchs(benchmarks_directory,
-                                   sequence):
-        """Compile the benchmarks and extract prog2image representation.
-
-        Parameters
-        ----------
-        benchmarks_directory : str
-
-        benchmarks_filename: str
-
-        sequence : list
-
-        Return
-        ------
-        processed : dict {benchmark: embeddings}
-        """
-
-    @staticmethod
     def compile_and_extract(benchmarks_filename,
                             sequence):
         """Compile the benchmark and extract prog2image representation.
@@ -86,24 +68,6 @@ class LBPeq:
     __version__ = '2.0.0'
 
     @staticmethod
-    def compile_and_extract_benchs(benchmarks_directory,
-                                   sequence):
-        """Compile the benchmarks and extract prog2image representation.
-
-        Parameters
-        ----------
-        benchmarks_directory : str
-
-        benchmarks_filename: str
-
-        sequence : list
-
-        Return
-        ------
-        processed : dict {benchmark: embeddings}
-        """
-
-    @staticmethod
     def compile_and_extract(benchmarks_filename,
                             sequence):
         """Compile the benchmark and extract prog2image representation.
@@ -136,24 +100,6 @@ class LBPif:
     """LBPeq Representation."""
 
     __version__ = '2.0.0'
-
-    @staticmethod
-    def compile_and_extract_benchs(benchmarks_directory,
-                                   sequence):
-        """Compile the benchmarks and extract prog2image representation.
-
-        Parameters
-        ----------
-        benchmarks_directory : str
-
-        benchmarks_filename: str
-
-        sequence : list
-
-        Return
-        ------
-        processed : dict {benchmark: embeddings}
-        """
 
     @staticmethod
     def compile_and_extract(benchmarks_filename,
