@@ -4,7 +4,7 @@ import numpy as np
 
 from PIL import Image
 from skimage.feature import local_binary_pattern
-from cython_rbp import _cython_rbp
+from .cython_rbp import _cython_rbp
 
 
 
