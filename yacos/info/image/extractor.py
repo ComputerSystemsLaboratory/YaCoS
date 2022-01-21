@@ -282,15 +282,45 @@ class Prog2Image:
     __version__ = '2.0.0'
 
     @staticmethod
+    def extract_from_binary(binary_name,
+	                        columns=256,
+                            lines=0):
+        """Extract prog2image representation form a binary file
+        Parameters
+        ----------
+        binary_name: str
+        columns: int
+        lines: int 
+            if line is lower than the size/columns (size give in bits)
+            the number of lines will be setted automatically
+
+        Return
+        ------
+        representation : np.array
+        """
+
+        benchmark_array = bit2vec.get_array(binary_name)
+        benchmark_emb = bit2vec(benchmark_array,
+                                columns=columns,
+                                desired_lines=lines)
+        representation = benchmark_emb.create_npz()
+        return representation
+
+
+
+    @staticmethod
     def compile_and_extract(benchmarks_base_directory,
                             benchmarks_filename,
                             sequence='-O0',
-                            columns=256):
+                            columns=256,
+							lines=0):
         """Compile the benchmark and extract prog2image representation.
             The benchmark directory must have a Makefile.opt that generates
             the bytecode as a.out.bc (or a.out_o.bc)
         Parameters
         ----------
+        benchmarks_base_directory: str
+
         benchmarks_filename: str
 
         sequence : list
@@ -300,7 +330,7 @@ class Prog2Image:
         processed : dict {benchmark: embeddings}
         """
 
-        ret = {}
+        processed = {}
         benchmarks = IO.load_yaml_or_fail(benchmarks_filename)
 
         for bench in benchmarks:
@@ -312,14 +342,22 @@ class Prog2Image:
                                          benchmark)
             Engine.compile(benchmark_dir,'opt',sequence)
             bytecode_file = os.path.join(benchmark_dir,'a.out_o.bc')
-            benchmark_array = bit2vec.get_array(bytecode_file)
-            benchmark_emb = bit2vec(benchmark_array,columns=columns)
-            ret[benchmark] = benchmark_emb.create_npz()
+            #benchmark_array = bit2vec.get_array(bytecode_file)
+            #benchmark_emb = bit2vec(benchmark_array,
+            #						columns=columns,
+            #						desired_lines=lines)
+            benchmark_emb = Prog2Image.extract_from_binary(bytecode_file,
+                                                           columns=columns,
+                                                           lines=lines)
+            processed[benchmark] = benchmark_emb
     
-        return ret
+        return processed
 
     @staticmethod
-    def extract(benchmarks_filename):
+    def extract(benchmarks_base_directory,
+                benchmarks_filename,
+                columns=256,
+                lines=0):
         """Extract prog2image representation.
 
         Parameters
@@ -330,6 +368,24 @@ class Prog2Image:
         ------
         processed : dict {benchmark: embeddings}
         """
+
+        processed = {}
+        benchmarks = IO.load_yaml_or_fail(benchmarks_filename)
+        for bench in benchmarks:
+            idx = bench.find('.')
+            collection = bench[:idx]
+            benchmark = bench[idx+1:]
+            benchmark_dir = os.path.join(benchmarks_base_directory,
+                                         collection,
+                                         benchmark)
+            bytecode_file = os.path.join(benchmark_dir,'a.out_o.bc')
+            benchmark_emb = Prog2Image.extract_from_binary(bytecode_file,
+                                                           columns=columns,
+                                                           lines=lines)
+            processed[benchmark] = benchmark_emb
+        return processed
+
+		
 
 class LBPeq:
     """LBPeq Representation."""
