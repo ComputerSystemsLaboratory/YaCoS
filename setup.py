@@ -11,6 +11,8 @@ from setuptools import setup, Extension, find_packages
 from setuptools.command.build_ext import build_ext
 from shutil import copyfile, copymode
 
+from Cython.Build import cythonize
+
 # gensim 3.4.0
 install_requires = [
     "gitpython",
