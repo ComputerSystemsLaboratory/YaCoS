@@ -156,11 +156,11 @@ setup(
     install_requires=install_requires,
     tests_require=tests_require,
     packages=find_packages("."),
-    #ext_modules=[CMakeExtension("")],
-    ext_modules=[
-        CMakeExtension(""),
-        Extension("info.image.cython_rbp",["yacos/info/image/cython_rbp.pyx"])
-    ],
+    ext_modules=[CMakeExtension("")],
+    #ext_modules=[
+    #    CMakeExtension(""),
+    #    Extension('yacos.info.image.cython_rbp',['yacos/info/image/cython_rbp.pyx'])
+    #],
     cmdclass=dict(build_ext=CMakeBuild),
     test_suite="tests",
     zip_safe=False,
