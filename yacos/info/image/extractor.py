@@ -20,6 +20,7 @@ import csv
 import glob
 import tempfile
 import subprocess
+import yaml
 
 from absl import logging as lg
 
@@ -27,6 +28,7 @@ from yacos.essential import IO
 from yacos.essential import Engine
 from yacos.essential import Sequence
 
+from yacos.info.image import bit2vec
 
 class Prog2Image:
     """Prog2Image Representation."""
@@ -34,10 +36,13 @@ class Prog2Image:
     __version__ = '2.0.0'
 
     @staticmethod
-    def compile_and_extract(benchmarks_filename,
-                            sequence):
+    def compile_and_extract(benchmarks_base_directory,
+                            benchmarks_filename,
+                            sequence='-O0',
+                            columns=256):
         """Compile the benchmark and extract prog2image representation.
-
+            The benchmark directory must have a Makefile.opt that generates
+            the bytecode as a.out.bc (or a.out_o.bc)
         Parameters
         ----------
         benchmarks_filename: str
@@ -48,6 +53,24 @@ class Prog2Image:
         ------
         processed : dict {benchmark: embeddings}
         """
+
+        ret = []
+        benchmarks = IO.load_yaml_or_fail(benchmarks_filename)
+
+        for bench in benchmarks:
+            idx = bench.find('.')
+            collection = bench[:idx]
+            benchmark = bench[idx+1:]
+            benchmark_dir = os.path.join(benchmarks_base_directory,
+                                         collection,
+                                         benchmark)
+            Engine.compile(benchmark_dir,'opt',sequence)
+            bytecode_file = os.path.join(benchmark_dir,'a.out_o.bc')
+            benchmark_array = bit2vec.get_array(bytecode_file)
+            benchmark_emb = bit2vec(benchmark_array,columns=columns)
+            ret[benchmark] = benchmark_emb.create_npz()
+        
+        return ret
 
     @staticmethod
     def extract(benchmarks_filename):
