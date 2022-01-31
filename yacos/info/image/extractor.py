@@ -292,7 +292,7 @@ class Prog2Image:
         columns: int
         lines: int 
             if line is lower than the size/columns (size give in bits)
-            the number of lines will be setted automatically
+            the number of lines will be setted automatically to store all bits
 
         Return
         ------
@@ -313,10 +313,10 @@ class Prog2Image:
                             benchmarks_filename,
                             sequence='-O0',
                             columns=256,
-							lines=0):
+                            lines=0):
         """Compile the benchmark and extract prog2image representation.
             The benchmark directory must have a Makefile.opt that generates
-            the bytecode as a.out.bc (or a.out_o.bc)
+            the bytecode as a.out_o.bc
         Parameters
         ----------
         benchmarks_base_directory: str
@@ -392,9 +392,24 @@ class LBPeq:
 
     __version__ = '2.0.0'
 
+    @staticmethod 
+    def extract_from_binary(binary_name,
+                            columns=256,
+                            lines=0):
+        benchmark_array = bit2vec.get_array(binary_name)
+        benchmark_emb = bit2vec(benchmark_array,
+                                columns=columns,
+                                desired_lines=lines)
+        representation = benchmark_emb.create_normalized_RBP_histogram()
+        return representation
+
+
     @staticmethod
-    def compile_and_extract(benchmarks_filename,
-                            sequence):
+    def compile_and_extract(benchmarks_base_directory,
+                            benchmarks_filename,
+                            sequence='-O0',
+                            columns=256,
+                            lines=0):
         """Compile the benchmark and extract prog2image representation.
 
         Parameters
@@ -407,9 +422,30 @@ class LBPeq:
         ------
         processed : dict {benchmark: embeddings}
         """
+        processed = {}
+        benchmarks = IO.load_yaml_or_fail(benchmarks_filename)
+
+        for bench in benchmarks:
+            idx = bench.find('.')
+            collection = bench[:idx]
+            benchmark = bench[idx+1:]
+            benchmark_dir = os.path.join(benchmarks_base_directory,
+                                         collection,
+                                         benchmark)
+            Engine.compile(benchmark_dir,'opt',sequence)
+            bytecode_file = os.path.join(benchmark_dir,'a.out_o.bc')
+            benchmark_emb = LBPeq.extract_from_binary(bytecode_file,
+                                                      columns=columns,
+                                                      lines=lines)
+            processed[benchmark] = benchmark_emb
+    
+        return processed
 
     @staticmethod
-    def extract(benchmarks_filename):
+    def extract(benchmarks_base_directory,
+                benchmarks_filename,
+                columns=256,
+                lines=0):
         """Extract prog2image representation.
 
         Parameters
@@ -420,6 +456,21 @@ class LBPeq:
         ------
         processed : dict {benchmark: embeddings}
         """
+        processed = {}
+        benchmarks = IO.load_yaml_or_fail(benchmarks_filename)
+        for bench in benchmarks:
+            idx = bench.find('.')
+            collection = bench[:idx]
+            benchmark = bench[idx+1:]
+            benchmark_dir = os.path.join(benchmarks_base_directory,
+                                         collection,
+                                         benchmark)
+            bytecode_file = os.path.join(benchmark_dir,'a.out_o.bc')
+            benchmark_emb = LBPeq.extract_from_binary(bytecode_file,
+                                                      columns=columns,
+                                                      lines=lines)
+            processed[benchmark] = benchmark_emb
+        return processed
 
 class LBPif:
     """LBPeq Representation."""
@@ -427,8 +478,22 @@ class LBPif:
     __version__ = '2.0.0'
 
     @staticmethod
-    def compile_and_extract(benchmarks_filename,
-                            sequence):
+    def extract_from_binary(binary_name,
+                            columns=256,
+                            lines=0):
+        benchmark_array = bit2vec.get_array(binary_name)
+        benchmark_emb = bit2vec(benchmark_array,
+                                columns=columns,
+                                desired_lines=lines)
+        representation = benchmark_emb.create_normalized_LBP_histogram()
+        return representation
+
+    @staticmethod
+    def compile_and_extract(benchmarks_base_directory,
+                            benchmarks_filename,
+                            sequence='-O0',
+                            columns=256,
+                            lines=0):
         """Compile the benchmark and extract prog2image representation.
 
         Parameters
@@ -441,9 +506,30 @@ class LBPif:
         ------
         processed : dict {benchmark: embeddings}
         """
+        processed = {}
+        benchmarks = IO.load_yaml_or_fail(benchmarks_filename)
+
+        for bench in benchmarks:
+            idx = bench.find('.')
+            collection = bench[:idx]
+            benchmark = bench[idx+1:]
+            benchmark_dir = os.path.join(benchmarks_base_directory,
+                                         collection,
+                                         benchmark)
+            Engine.compile(benchmark_dir,'opt',sequence)
+            bytecode_file = os.path.join(benchmark_dir,'a.out_o.bc')
+            benchmark_emb = LBPif.extract_from_binary(bytecode_file,
+                                                      columns=columns,
+                                                      lines=lines)
+            processed[benchmark] = benchmark_emb
+    
+        return processed
 
     @staticmethod
-    def extract(benchmarks_filename):
+    def extract(benchmarks_base_directory,
+                benchmarks_filename,
+                columns=256,
+                lines=0):
         """Extract prog2image representation.
 
         Parameters
@@ -454,3 +540,18 @@ class LBPif:
         ------
         processed : dict {benchmark: embeddings}
         """
+        processed = {}
+        benchmarks = IO.load_yaml_or_fail(benchmarks_filename)
+        for bench in benchmarks:
+            idx = bench.find('.')
+            collection = bench[:idx]
+            benchmark = bench[idx+1:]
+            benchmark_dir = os.path.join(benchmarks_base_directory,
+                                         collection,
+                                         benchmark)
+            bytecode_file = os.path.join(benchmark_dir,'a.out_o.bc')
+            benchmark_emb = LBPif.extract_from_binary(bytecode_file,
+                                                      columns=columns,
+                                                      lines=lines)
+            processed[benchmark] = benchmark_emb
+        return processed
