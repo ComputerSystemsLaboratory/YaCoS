@@ -1,1 +1,1 @@
-from .extractor import Prog2Image, LBPif, LBPeq
+from .extractor import Prog2Image, LBPif, LBPeq, bit2vec
