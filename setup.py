@@ -15,7 +15,7 @@ from shutil import copyfile, copymode
 # gensim 3.4.0
 install_requires = [
     "gitpython",
-    "numpy~=1.19.2",
+    "numpy", #"numpy~=1.19.2"
     "pygraphviz",
     "appdirs",
     "pandas",
