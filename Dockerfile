@@ -27,10 +27,15 @@ RUN update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-10 1
 RUN wget https://github.com/sharkdp/hyperfine/releases/download/v1.11.0/hyperfine_1.11.0_amd64.deb \
     && dpkg -i hyperfine_1.11.0_amd64.deb && rm -f hyperfine_1.11.0_amd64.deb
 
+RUN pip3 install tensorflow \
+    && pip3 install tensorboard \
+    && pip3 install protobuf 
 
 # YaCos IR2VEC Dependencies
 RUN git clone https://github.com/IITH-Compilers/IR2Vec.git \
-    && mkdir -p IR2Vec/build && cd IR2Vec/build \
+    && mkdir -p IR2Vec/build && cd IR2Vec/ \
+    && git checkout llvm10 \
+    && cd build \
     && cmake -DLT_LLVM_INSTALL_DIR=/usr -DEigen3_DIR=/usr -DCMAKE_INSTALL_PREFIX=/usr ../src \
     && make install \
     && cd ../.. \
@@ -47,18 +52,18 @@ ENV LANG en_US.utf8
 
 
 # Insalling YaCoS Data
-RUN mkdir -p /home/nonroot/.local/yacos \
-    && wget www.csl.uem.br/repository/data/yacos_data.tar.xz \
-    && tar xfJ yacos_data.tar.xz -C $HOME/.local/yacos \
-    && rm -f yacos_data.tar.xz \
-    && wget www.csl.uem.br/repository/data/yacos_tests.tar.xz \
-    && tar xfJ yacos_tests.tar.xz -C $HOME/.local/yacos \
-    && rm -f yacos_tests.tar.xz
+RUN mkdir -p /home/nonroot/.local/yacos 
+#    && wget www.csl.uem.br/repository/data/yacos_data.tar.xz \
+#    && tar xfJ yacos_data.tar.xz -C $HOME/.local/yacos \
+#    && rm -f yacos_data.tar.xz \
+#    && wget www.csl.uem.br/repository/data/yacos_tests.tar.xz \
+#    && tar xfJ yacos_tests.tar.xz -C $HOME/.local/yacos \
+#    && rm -f yacos_tests.tar.xz
 
 ## Copying and installing YaCos
 RUN mkdir -p /home/nonroot/YaCoS
 ADD . /home/nonroot/YaCoS/
 RUN sudo chown --recursive nonroot /home/nonroot/YaCoS \
     && chmod --recursive 777 /home/nonroot/YaCoS
-RUN cd /home/nonroot/YaCoS/ && python3 setup.py build
+RUN cd /home/nonroot/YaCoS/ && sudo python3 setup.py build
 RUN cd /home/nonroot/YaCoS/ && sudo python3 setup.py install
