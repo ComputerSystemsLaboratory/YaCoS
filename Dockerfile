@@ -29,8 +29,8 @@ RUN wget https://github.com/sharkdp/hyperfine/releases/download/v1.11.0/hyperfin
 
 RUN pip3 install tensorflow \
     && pip3 install tensorboard \
-    && pip3 install protobuf 
-
+    && pip3 install protobuf \ 
+    && pip3 install cython
 # YaCos IR2VEC Dependencies
 RUN git clone https://github.com/IITH-Compilers/IR2Vec.git \
     && mkdir -p IR2Vec/build && cd IR2Vec/ \
