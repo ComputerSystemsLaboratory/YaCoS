@@ -35,7 +35,7 @@ from yacos.essential import Sequence
 
 from PIL import Image
 from skimage.feature import local_binary_pattern
-#from cython_rbp import _cython_rbp
+from cython_rbp import cython_rbp
 
 
 
@@ -263,8 +263,8 @@ class bit2vec:
 			return rbp_matrix
 		
 		img = self.create_npz(fill_np=0.0)
-		#rbp = _cython_rbp(img,P=P,R=R) #see cython_rbp.pyx file
-		rbp = __raw_binary_pattern(img,P=P,R=R)
+		rbp = cython_rbp(img,P=P,R=R) #see cython_rbp.pyx file in YaCoS/cython_rbp/src
+		#rbp = __raw_binary_pattern(img,P=P,R=R)
 		max_val = int(2**P)
 		histogram = np.zeros(max_val,dtype=np.double)
 		for val in rbp.ravel():

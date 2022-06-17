@@ -10,7 +10,7 @@ cdef double get_coord(int max_coord, double coord) nogil:
 		return r
 	return -1
 
-cpdef cnp.ndarray _cython_rbp(cnp.ndarray arg_img, int P=8, int R=2):
+cpdef cnp.ndarray cython_rbp(cnp.ndarray arg_img, int P=8, int R=2):
 	'''
 		This function extracts the binary pattern around each "pixel of
 		the binary image. The strategy is very similar to LBP, but

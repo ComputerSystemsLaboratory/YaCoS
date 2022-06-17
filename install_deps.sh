@@ -18,6 +18,8 @@ function install_system_packages {
   wget https://github.com/sharkdp/hyperfine/releases/download/v1.11.0/hyperfine_1.11.0_amd64.deb
   sudo dpkg -i hyperfine_1.11.0_amd64.deb
   rm hyperfine_1.11.0_amd64.deb
+  sudo apt install -y python3-pip
+  sudo pip3 install cython
 }
 
 function install_yacos_data {
@@ -42,6 +44,14 @@ function install_ir2vec {
   rm -rf IR2Vec
 }
 
+function install_cython_rbp {
+  cd cython_rbp
+  sudo python3 setup.py install
+  sudo rm -rf cythonrbp.egg-info
+  sudo rm -rf build
+  sudo rm -rf dist
+}
+
 if [[ $(lsb_release -rs) == "16.04" ]] || [[ $(lsb_release -rs) == "18.04" ]]; then
   echo "OS supported."
   add_llvm_10_apt_source $(lsb_release -rs)
@@ -55,5 +65,6 @@ fi
 install_system_packages
 install_yacos_data
 install_ir2vec
+install_cython_rbp
 
 echo "Please install perf, you may want to define instructions or cycles as the objective."
