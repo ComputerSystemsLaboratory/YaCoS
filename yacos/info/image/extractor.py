@@ -35,7 +35,7 @@ from yacos.essential import Sequence
 
 from PIL import Image
 from skimage.feature import local_binary_pattern
-from cython_rbp import cython_rbp
+from cython_lbpeq import cython_lbpeq
 
 
 
@@ -196,7 +196,7 @@ class bit2vec:
 			np.savez_compressed(output_file,values=norm_hist)
 		return norm_hist
 
-	def create_normalized_RBP_histogram(self,
+	def create_normalized_LBPeq_histogram(self,
 										P=8,
 										R=2,
 										output_file=None):
@@ -263,7 +263,7 @@ class bit2vec:
 			return rbp_matrix
 		
 		img = self.create_npz(fill_np=0.0)
-		rbp = cython_rbp(img,P=P,R=R) #see cython_rbp.pyx file in YaCoS/cython_rbp/src
+		rbp = cython_lbpeq(img,P=P,R=R) #see cython_lbpeq.pyx file in YaCoS/cython_lbpeq/src
 		#rbp = __raw_binary_pattern(img,P=P,R=R)
 		max_val = int(2**P)
 		histogram = np.zeros(max_val,dtype=np.double)
@@ -400,7 +400,7 @@ class LBPeq:
         benchmark_emb = bit2vec(benchmark_array,
                                 columns=columns,
                                 desired_lines=lines)
-        representation = benchmark_emb.create_normalized_RBP_histogram()
+        representation = benchmark_emb.create_normalized_LBPeq_histogram()
         return representation
 
 

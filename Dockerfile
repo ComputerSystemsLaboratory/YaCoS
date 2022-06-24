@@ -65,9 +65,9 @@ RUN mkdir -p /home/nonroot/YaCoS
 ADD . /home/nonroot/YaCoS/
 RUN sudo chown --recursive nonroot /home/nonroot/YaCoS \
     && chmod --recursive 777 /home/nonroot/YaCoS
-RUN cd /home/nonroot/YaCoS/cython_rbp \
+RUN cd /home/nonroot/YaCoS/cython_lbpeq \
     && sudo python3 setup.py install \
-    && sudo rm -rf cythonrbp.egg-info \
+    && sudo rm -rf cythonlbpeq.egg-info \
     && sudo rm -rf build \
     && sudo rm -rf dist
 RUN cd /home/nonroot/YaCoS/ && sudo python3 setup.py build

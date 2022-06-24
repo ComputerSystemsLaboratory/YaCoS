@@ -45,9 +45,9 @@ function install_ir2vec {
 }
 
 function install_cython_rbp {
-  cd cython_rbp
+  cd cython_lbpeq
   sudo python3 setup.py install
-  sudo rm -rf cythonrbp.egg-info
+  sudo rm -rf cythonlbpeq.egg-info
   sudo rm -rf build
   sudo rm -rf dist
 }
