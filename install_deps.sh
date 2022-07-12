@@ -24,10 +24,10 @@ function install_system_packages {
 
 function install_yacos_data {
   mkdir $HOME/.local/yacos
-  wget www.csl.uem.br/repository/data/yacos_data.tar.xz
+  wget www.csl.uem.br/repository/yacos/yacos_data.tar.xz
   tar xfJ yacos_data.tar.xz -C $HOME/.local/yacos
   rm -f yacos_data.tar.xz
-  wget www.csl.uem.br/repository/data/yacos_tests.tar.xz
+  wget www.csl.uem.br/repository/yacos/yacos_tests.tar.xz
   tar xfJ yacos_tests.tar.xz -C $HOME/.local/yacos
   rm -f yacos_tests.tar.xz
 }

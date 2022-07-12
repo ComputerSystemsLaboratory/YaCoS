@@ -52,13 +52,13 @@ ENV LANG en_US.utf8
 
 
 # Insalling YaCoS Data
-RUN mkdir -p /home/nonroot/.local/yacos 
-#    && wget www.csl.uem.br/repository/data/yacos_data.tar.xz \
-#    && tar xfJ yacos_data.tar.xz -C $HOME/.local/yacos \
-#    && rm -f yacos_data.tar.xz \
-#    && wget www.csl.uem.br/repository/data/yacos_tests.tar.xz \
-#    && tar xfJ yacos_tests.tar.xz -C $HOME/.local/yacos \
-#    && rm -f yacos_tests.tar.xz
+RUN mkdir -p /home/nonroot/.local/yacos \ 
+    && wget --progress=bar:force:noscroll www.csl.uem.br/repository/yacos/yacos_data.tar.xz \
+    && tar xfJ yacos_data.tar.xz -C $HOME/.local/yacos \
+    && rm -f yacos_data.tar.xz \
+    && wget --progress=bar:force:noscroll www.csl.uem.br/repository/yacos/yacos_tests.tar.xz \
+    && tar xfJ yacos_tests.tar.xz -C $HOME/.local/yacos \
+    && rm -f yacos_tests.tar.xz
 
 ## Copying and installing YaCos
 RUN mkdir -p /home/nonroot/YaCoS
